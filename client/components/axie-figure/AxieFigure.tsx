@@ -26,43 +26,26 @@ PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
 
 export const AxieFigure = () => {
   const [loading, setLoading] = useState<boolean>()
-
   const [client, setClient] = useState(null)
   const [roomId, setRoomId] = useState<string>('')
-
+  const [room, setRoom] = useState()
   const [mainPlayer, setMainPlayer] = useState<Player>()
   const [mainPlayerAddress, setMainPlayerAddress] = useState('')
-
   const [enemyPlayerAddress, setEnemyPlayerAddress] = useState<Player>()
-
   const [isGameStart, setIsGameStart] = useState<boolean>()
-
-  const [room, setRoom] = useState()
-
   const [gameTimer, setGameTimer] = useState<number>()
-
-  const container = useRef<HTMLDivElement>(null)
-  const gameRef = useRef<PlaygroundGame>(null)
-
-  const [currentSpell, setCurrentSpell] = useState<string>()
   const [allyHealth, setAllyHealth] = useState<number>(100)
   const [enemyHealth, setEnemyHealth] = useState<number>(100)
 
-  //#region Transcript
+  const container = useRef<HTMLDivElement>(null)
+  const gameRef = useRef<PlaygroundGame>(null)
 
   const { finalTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition({
     continuous: false,
   })
   const startListening = () => SpeechRecognition.startListening()
 
-  //#endregion
-
-  // Connect to multiplayer server
-  useEffect(() => {
-    setClient(new Colyseus.Client('ws://localhost:2567'))
-  }, [])
-
-  // Load game
+  // Init game
   useEffect(() => {
     if (!container) return
     if (!container.current) return
@@ -83,7 +66,6 @@ export const AxieFigure = () => {
     })
 
     gameRef.current = game
-    // gameRef.current.currentAxiesId = currentAxie.id
     gameRef.current.startGame()
     canvasContainer.appendChild(game.view)
 
@@ -101,21 +83,16 @@ export const AxieFigure = () => {
 
   // Load axie
   const addMainAxieToScene = (axieId: string, animation) => {
-    console.log('addMainAxieToScene')
-    gameRef.current.add('ally', axieId, { x: 250, y: 390 }, AxieDirection.Right, animation)
+    gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, animation)
   }
 
   const addAxieToScene = (axieId: string, animation: string) => {
-    console.log('addAxieToScene')
-
-    gameRef.current.add('enemy', axieId, { x: 550, y: 190 }, AxieDirection.Left, animation)
+    gameRef.current.add('enemy', axieId, { x: 640, y: 200 }, AxieDirection.Left, animation)
   }
 
   const removeAxieFromScene = (axieContainer: FigureContainer) => {
     gameRef.current.remove(axieContainer)
   }
-
-  //#region Match Making
 
   const createRoom = async () => {
     if (!client) throw Error('Client not connected')
@@ -181,7 +158,72 @@ export const AxieFigure = () => {
         if (mainPlayer.address === sender) {
           gameRef.current.ally.changeCurrentAnimation(animation, false)
           gameRef.current.ally.changeCurrentAnimation('action/idle/normal', true, 1)
-          gameRef.current.ally.changeSpell('ally', `/spells-assets/${type}.png`)
+          // gameRef.current.ally.changeSpell('ally', `/spells-assets/${type}.png`)
+
+          if (type === 'hit')
+            gameRef.current.ally.changeSpell('ally', type, [
+              '/spells-assets/hit/0.png',
+              '/spells-assets/hit/1.png',
+              '/spells-assets/hit/2.png',
+              '/spells-assets/hit/3.png',
+              '/spells-assets/hit/4.png',
+              '/spells-assets/hit/5.png',
+              '/spells-assets/hit/6.png',
+              '/spells-assets/hit/7.png',
+            ])
+
+          if (type === 'heal')
+            gameRef.current.ally.changeSpell('ally', type, [
+              '/spells-assets/heal/0.png',
+              '/spells-assets/heal/1.png',
+              '/spells-assets/heal/2.png',
+              '/spells-assets/heal/3.png',
+              '/spells-assets/heal/4.png',
+              '/spells-assets/heal/5.png',
+              '/spells-assets/heal/6.png',
+              '/spells-assets/heal/7.png',
+              '/spells-assets/heal/8.png',
+              '/spells-assets/heal/9.png',
+              '/spells-assets/heal/10.png',
+              '/spells-assets/heal/11.png',
+              '/spells-assets/heal/12.png',
+            ])
+
+          if (type === 'shield')
+            gameRef.current.ally.changeSpell('ally', type, [
+              '/spells-assets/shield/0.png',
+              '/spells-assets/shield/1.png',
+              '/spells-assets/shield/2.png',
+              '/spells-assets/shield/3.png',
+              '/spells-assets/shield/4.png',
+              '/spells-assets/shield/5.png',
+              '/spells-assets/shield/6.png',
+              '/spells-assets/shield/7.png',
+              '/spells-assets/shield/8.png',
+              '/spells-assets/shield/9.png',
+              '/spells-assets/shield/10.png',
+              '/spells-assets/shield/11.png',
+              '/spells-assets/shield/12.png',
+              '/spells-assets/shield/13.png',
+              '/spells-assets/shield/14.png',
+            ])
+
+          if (type === 'ultimate')
+            gameRef.current.ally.changeSpell('ally', type, [
+              '/spells-assets/ultimate/0.png',
+              '/spells-assets/ultimate/1.png',
+              '/spells-assets/ultimate/2.png',
+              '/spells-assets/ultimate/3.png',
+              '/spells-assets/ultimate/4.png',
+              '/spells-assets/ultimate/5.png',
+              '/spells-assets/ultimate/6.png',
+              '/spells-assets/ultimate/7.png',
+              '/spells-assets/ultimate/8.png',
+              '/spells-assets/ultimate/9.png',
+              '/spells-assets/ultimate/10.png',
+              '/spells-assets/ultimate/11.png',
+              '/spells-assets/ultimate/12.png',
+            ])
         }
         if (mainPlayer.address === receiver) {
           // gameRef.current.ally.changeCurrentAnimation('defense/hit-by-normal', false)
@@ -191,7 +233,72 @@ export const AxieFigure = () => {
         if (enemyAddress === sender) {
           gameRef.current.enemy.changeCurrentAnimation(animation, false)
           gameRef.current.enemy.changeCurrentAnimation('action/idle/normal', true, 1)
-          gameRef.current.enemy.changeSpell('enemy', `/spells-assets/${type}.png`)
+          // gameRef.current.enemy.changeSpell('enemy', `/spells-assets/${type}.png`)
+
+          if (type === 'hit')
+            gameRef.current.ally.changeSpell('enemy', type, [
+              '/spells-assets/hit/0.png',
+              '/spells-assets/hit/1.png',
+              '/spells-assets/hit/2.png',
+              '/spells-assets/hit/3.png',
+              '/spells-assets/hit/4.png',
+              '/spells-assets/hit/5.png',
+              '/spells-assets/hit/6.png',
+              '/spells-assets/hit/7.png',
+            ])
+
+          if (type === 'heal')
+            gameRef.current.ally.changeSpell('enemy', type, [
+              '/spells-assets/heal/0.png',
+              '/spells-assets/heal/1.png',
+              '/spells-assets/heal/2.png',
+              '/spells-assets/heal/3.png',
+              '/spells-assets/heal/4.png',
+              '/spells-assets/heal/5.png',
+              '/spells-assets/heal/6.png',
+              '/spells-assets/heal/7.png',
+              '/spells-assets/heal/8.png',
+              '/spells-assets/heal/9.png',
+              '/spells-assets/heal/10.png',
+              '/spells-assets/heal/11.png',
+              '/spells-assets/heal/12.png',
+            ])
+
+          if (type === 'shield')
+            gameRef.current.ally.changeSpell('enemy', type, [
+              '/spells-assets/shield/0.png',
+              '/spells-assets/shield/1.png',
+              '/spells-assets/shield/2.png',
+              '/spells-assets/shield/3.png',
+              '/spells-assets/shield/4.png',
+              '/spells-assets/shield/5.png',
+              '/spells-assets/shield/6.png',
+              '/spells-assets/shield/7.png',
+              '/spells-assets/shield/8.png',
+              '/spells-assets/shield/9.png',
+              '/spells-assets/shield/10.png',
+              '/spells-assets/shield/11.png',
+              '/spells-assets/shield/12.png',
+              '/spells-assets/shield/13.png',
+              '/spells-assets/shield/14.png',
+            ])
+
+          if (type === 'ultimate')
+            gameRef.current.ally.changeSpell('enemy', type, [
+              '/spells-assets/ultimate/0.png',
+              '/spells-assets/ultimate/1.png',
+              '/spells-assets/ultimate/2.png',
+              '/spells-assets/ultimate/3.png',
+              '/spells-assets/ultimate/4.png',
+              '/spells-assets/ultimate/5.png',
+              '/spells-assets/ultimate/6.png',
+              '/spells-assets/ultimate/7.png',
+              '/spells-assets/ultimate/8.png',
+              '/spells-assets/ultimate/9.png',
+              '/spells-assets/ultimate/10.png',
+              '/spells-assets/ultimate/11.png',
+              '/spells-assets/ultimate/12.png',
+            ])
         }
 
         if (enemyAddress === receiver) {
@@ -208,7 +315,7 @@ export const AxieFigure = () => {
       })
 
       room.state.players.onRemove = function (player, sessionId) {
-        console.log('Player leave the room')
+        removeAxieFromScene(gameRef.current.enemy)
       }
 
       room.onMessage('action-start-game', ({ counter }) => {
@@ -222,6 +329,10 @@ export const AxieFigure = () => {
       room.onMessage('game-end', ({ winner }) => {
         console.log('winner: ', winner)
       })
+
+      room.onLeave((code) => {
+        removeAxieFromScene(gameRef.current.enemy)
+      })
     }
   }, [room])
 
@@ -229,7 +340,7 @@ export const AxieFigure = () => {
     if (gameTimer - 5 >= 0) setIsGameStart(true)
   }, [gameTimer])
 
-  const spells = ['leviosa', 'lumos', 'avada kedavra']
+  const spells = ['stupefy', 'episkey', 'expecto patronum', 'avada kedavra']
 
   // Check what spell is calling
   useEffect(() => {
@@ -238,7 +349,7 @@ export const AxieFigure = () => {
 
     spells.map((spell) => {
       const score = getCosineSimilarityScore(spell, finalTranscript)
-      if (checkCosineSimilarity(spell, finalTranscript, 70)) {
+      if (checkCosineSimilarity(spell, finalTranscript, 60)) {
         if (maxCosine < score) {
           maxCosine = score
           highestScoreSpell = spell
@@ -246,25 +357,16 @@ export const AxieFigure = () => {
       }
     })
     console.log('highest: ', highestScoreSpell)
-    if (highestScoreSpell === 'avada kedavra'.toLowerCase()) hit()
-
-    if (highestScoreSpell === 'leviosa'.toLowerCase()) heal()
-    if (highestScoreSpell === 'lumos'.toLowerCase()) shield()
+    if (highestScoreSpell === spells[0].toLowerCase()) hit()
+    if (highestScoreSpell === spells[1].toLowerCase()) heal()
+    if (highestScoreSpell === spells[2].toLowerCase()) shield()
+    if (highestScoreSpell === spells[3].toLowerCase()) ultimate()
 
     // setCurrentSpell(highestScoreSpell)
   }, [finalTranscript])
 
   const leaveRoom = async () => {
-    if (!client || !roomId) throw Error('Client or roomId not defined')
-    try {
-      const room = await client.joinById(roomId, {
-        address: '123',
-        axies: '1000',
-      })
-      setRoom(room)
-    } catch (error) {
-      console.error('join error', error)
-    }
+    if (room) room.leave(false)
   }
   //#endregion
 
@@ -302,6 +404,18 @@ export const AxieFigure = () => {
         receiver: mainPlayer.address,
       })
     else console.log('cannot send shield')
+  }
+
+  const ultimate = () => {
+    if (room)
+      room.send('ultimate', {
+        type: 'ultimate',
+        animation: 'attack/melee/horn-gore',
+        value: 50,
+        sender: mainPlayer.address,
+        receiver: enemyPlayerAddress,
+      })
+    else console.log('cannot send ultimate')
   }
 
   if (!browserSupportsSpeechRecognition) {
@@ -365,6 +479,10 @@ export const AxieFigure = () => {
 
       <button className={s.createButton} onClick={shield}>
         SHIELD
+      </button>
+
+      <button className={s.createButton} onClick={ultimate}>
+        ULTIMATE
       </button>
 
       {/* <h3 style={{ color: 'red' }}>Transcript {transcript}</h3> */}

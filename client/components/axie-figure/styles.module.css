@@ -70,4 +70,250 @@
   border-radius: 4px;
   width: 800px;
   height: 500px;
+  border-radius: 15px;
+}
+
+.infoHeader {
+  width: 800px;
+  height: 92px;
+  background-color: #282b39;
+  border-radius: 15px;
+  margin-bottom: 8px;
+  position: relative;
+  margin-top: 4px;
+}
+
+.roomIdInput {
+  width: 248px;
+  height: 42px;
+  background: #282b39;
+  border-radius: 12px;
+  border: 3px solid;
+  background: linear-gradient(0deg, #282b39, #282b39), linear-gradient(90.45deg, #df7862 1.03%, #dd9788 101.46%);
+  position: absolute;
+  top: 25px;
+  left: 306px;
+  padding-left: 18px;
+  padding-right: 18px;
+  font-size: 24px;
+  font-family: 'GUMDROP';
+  color: #fff;
+  outline: none;
+}
+
+.roomIdInput::outline {
+  display: none;
+}
+
+.createRoom {
+  position: absolute;
+  top: 25px;
+  left: 32px;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.createRoom:active {
+  transform: scale(0.8);
+}
+
+.joinRoom {
+  position: absolute;
+  top: 25px;
+  right: 32px;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.joinRoom:active {
+  transform: scale(0.8);
+}
+
+.splitText {
+  width: 29px;
+  height: 23px;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 23px;
+  left: 256px;
+  top: 35px;
+  position: absolute;
+  font-family: 'GUMDROP';
+}
+
+.allyAddress {
+  position: absolute;
+  font-family: 'GUMDROP';
+  top: 22px;
+  left: 28px;
+  color: #bfc6e2;
+  font-size: 20px;
+  line-height: 19px;
+}
+
+.enemyAddress {
+  position: absolute;
+  font-family: 'GUMDROP';
+  top: 22px;
+  right: 28px;
+  color: #bfc6e2;
+  font-size: 20px;
+  line-height: 19px;
+}
+
+.vsText {
+  position: absolute;
+  width: 59px;
+  height: 53px;
+  font-family: 'GUMDROP';
+  font-size: 55.4545px;
+  line-height: 53px;
+  top: 20px;
+  left: 371px;
+}
+
+.healthBarAlly {
+  width: 294px;
+  height: 20px;
+  border-radius: 5px;
+  border: 3px solid #b7bac7;
+  position: absolute;
+  left: 28px;
+  top: 46px;
+  background: #616473;
+}
+
+.healthBarAllyLayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: #83e26b;
+  transform: scaleX(0.7);
+  transform-origin: left;
+}
+
+.healthBarEnemy {
+  width: 294px;
+  height: 20px;
+  border-radius: 5px;
+  border: 3px solid #b7bac7;
+  position: absolute;
+  right: 28px;
+  top: 46px;
+  background: #616473;
+}
+
+.healthBarEnemyLayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: #83e26b;
+  transform: scaleX(0.7);
+  transform-origin: right;
+  transition: transform all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.roomInfoHeader {
+  width: 800px;
+  position: relative;
+  height: 42px;
+}
+
+.roomId {
+  top: 4px;
+  position: absolute;
+  font-family: 'GUMDROP';
+  font-size: 32px;
+  line-height: 37px;
+  color: #000000;
+}
+
+.outRoom {
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.outRoom:active {
+  transform: scale(0.8);
+}
+
+.copy {
+  position: absolute;
+  top: 8px;
+  left: 190px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.copy:active {
+  transform: scale(0.8);
+}
+
+.result {
+  position: absolute;
+  top: 350px;
+}
+
+.mic {
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.mic:active {
+  transform: scale(0.8);
+}
+
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  z-index: 999;
+  background: rgba(235, 217, 254, 0.8);
+}
+
+.inputAddressContainer {
+  width: 530px;
+  height: 384px;
+  border-radius: 30px;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.walletAddressInput {
+  border: 3px solid #df7862;
+  border-radius: 12px;
+  width: 80%;
+  height: 44px;
+  font-family: 'GUMDROP';
+  font-size: 24px;
+  line-height: 23px;
+  padding-left: 20px;
+  padding-right: 20px;
+  outline: none;
+  color: #474747;
+  /* margin-top: 12px; */
+  margin-top: 32px;
+}
+
+.walletAddressInput::placeholder {
+  color: #afafaf;
+}
+
+.bringMeMagic {
+  margin-top: 28px;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.bringMeMagic:active {
+  transform: scale(0.9);
 }

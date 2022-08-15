@@ -1,3 +1,6 @@
+import { AxieMixer } from '@axieinfinity/mixer'
+import { getAxieGenes } from './axie'
+
 export interface Key {
   code: string
   isDown: boolean
@@ -176,4 +179,17 @@ export const getCosineSimilarityScore = (text1: string, text2: string) => {
 export const checkCosineSimilarity = (text1: string, text2: string, THRESHOLD: number) => {
   const similarityScore = getSimilarityScore(textCosineSimilarity(formatText(text1), formatText(text2)))
   return similarityScore > THRESHOLD
+}
+
+export const randomAxieId = async () => {
+  const randomId = Math.floor(Math.random() * 1000000)
+  const genes = await getAxieGenes(randomId.toString())
+
+  const mixer = new AxieMixer(genes).getAssets()
+  if (!mixer) randomAxieId()
+  return randomId.toString()
+}
+
+export const randomInRange = (min: number, max: number) => {
+  return Math.random() * (max - min) + min
 }

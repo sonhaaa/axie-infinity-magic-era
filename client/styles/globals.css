@@ -11,6 +11,13 @@ body {
   color: #fff;
 }
 
+@font-face {
+  font-family: 'GUMDROP';
+  src: url('/font/GUMDROP.tff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
   box-sizing: border-box;
 }

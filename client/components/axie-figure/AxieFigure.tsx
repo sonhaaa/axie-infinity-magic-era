@@ -1,21 +1,19 @@
 import * as PIXI from 'pixi.js'
 import { useEffect, useRef, useState } from 'react'
 
-import {} from 'colyseus.js'
+import * as Colyseus from 'colyseus.js'
+import Image from 'next/image'
 import 'pixi-spine'
+import { checkCosineSimilarity, getCosineSimilarityScore, randomAxieId, randomInRange } from '../../utils/helper'
 import { PuffLoading } from '../puff-loading/PuffLoading'
-import { BodyOrAnimationDropdown } from './body-or-animation-dropdown/BodyOrAnimationDropdown'
-import { animationList, SAMPLE_PLAYER_DATA } from './constants'
 import { PlaygroundGame } from './PlaygroundGame'
 import s from './styles.module.css'
-import { AxieDirection, Part } from './types'
-
-import * as Colyseus from 'colyseus.js'
-import { checkCosineSimilarity, checkSimilarity, getCosineSimilarityScore } from '../../utils/helper'
-
-import { createSpeechlySpeechRecognition } from '@speechly/speech-recognition-polyfill'
+import { AxieDirection } from './types'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { FigureContainer } from './FigureContainer'
+import { Howl, Howler } from 'howler'
+
+import { sound } from '@pixi/sound'
 
 interface Player {
   address: string
@@ -31,11 +29,14 @@ export const AxieFigure = () => {
   const [room, setRoom] = useState()
   const [mainPlayer, setMainPlayer] = useState<Player>()
   const [mainPlayerAddress, setMainPlayerAddress] = useState('')
-  const [enemyPlayerAddress, setEnemyPlayerAddress] = useState<Player>()
-  const [isGameStart, setIsGameStart] = useState<boolean>()
-  const [gameTimer, setGameTimer] = useState<number>()
+  const [enemyPlayerAddress, setEnemyPlayerAddress] = useState<string>()
+  const [isGameStart, setIsGameStart] = useState<boolean>(false)
   const [allyHealth, setAllyHealth] = useState<number>(100)
   const [enemyHealth, setEnemyHealth] = useState<number>(100)
+  const [isWin, setIsWin] = useState<boolean>(false)
+  const [currentSpell, setCurrentSpell] = useState<string>()
+
+  const spells = ['stupefy', 'episkey', 'expecto patronum', 'avada kedavra']
 
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
@@ -44,6 +45,23 @@ export const AxieFigure = () => {
     continuous: false,
   })
   const startListening = () => SpeechRecognition.startListening()
+
+  // SOUND
+  useEffect(() => {
+    sound.add('background', {
+      url: 'sounds/background.mp3',
+      loop: true,
+
+      // autoPlay: true,
+    })
+    sound.add('hit', 'sounds/hit.mp3')
+    sound.add('heal', 'sounds/heal.mp3')
+    sound.add('shield', 'sounds/shield.mp3')
+    sound.add('ultimate', 'sounds/ultimate.mp3')
+    sound.play('background', {
+      volume: 0.1,
+    })
+  }, [])
 
   // Init game
   useEffect(() => {
@@ -81,7 +99,7 @@ export const AxieFigure = () => {
     }
   }, [mainPlayer])
 
-  // Load axie
+  //#region ADD & REMOVE AXIE
   const addMainAxieToScene = (axieId: string, animation) => {
     gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, animation)
   }
@@ -94,6 +112,8 @@ export const AxieFigure = () => {
     gameRef.current.remove(axieContainer)
   }
 
+  //#endregion
+
   const createRoom = async () => {
     if (!client) throw Error('Client not connected')
     try {
@@ -105,8 +125,7 @@ export const AxieFigure = () => {
         health: 100,
       })
 
-      console.log(room.id)
-
+      setIsGameStart(true)
       setRoom(room)
     } catch (error) {
       console.error('join error', error)
@@ -123,17 +142,20 @@ export const AxieFigure = () => {
         spell: 'normal',
         health: 100,
       })
+
+      setIsGameStart(true)
       setRoom(room)
     } catch (error) {
       console.error('join error', error)
     }
   }
 
-  const handleMainPlayerAddress = () => {
+  const handleMainPlayerAddress = async () => {
     localStorage.setItem('address', mainPlayerAddress)
+    const axieId = await randomAxieId()
     setMainPlayer({
       address: mainPlayerAddress,
-      axie: '23486',
+      axie: axieId,
     })
   }
 
@@ -141,17 +163,16 @@ export const AxieFigure = () => {
     if (mainPlayer) addMainAxieToScene(mainPlayer.axie, 'activity/appear')
   }, [mainPlayer])
 
+  // ROOM EVENT HANDLER
   useEffect(() => {
     if (room) {
       let enemyAddress
       room.state.players.onAdd = function (player, sessionId) {
-        console.log(player)
-
-        if (mainPlayer.address !== player.address) {
-          addAxieToScene(player.axie, player.animation)
-          enemyAddress = player.address
-          setEnemyPlayerAddress(player.address)
-        }
+        // if (mainPlayer.address !== player.address) {
+        //   addAxieToScene(player.axie, player.animation)
+        //   enemyAddress = player.address
+        //   setEnemyPlayerAddress(player.address)
+        // }
       }
 
       room.onMessage('update-axie', ({ sender, receiver, animation, type }) => {
@@ -159,6 +180,8 @@ export const AxieFigure = () => {
           gameRef.current.ally.changeCurrentAnimation(animation, false)
           gameRef.current.ally.changeCurrentAnimation('action/idle/normal', true, 1)
           // gameRef.current.ally.changeSpell('ally', `/spells-assets/${type}.png`)
+
+          sound.play(type)
 
           if (type === 'hit')
             gameRef.current.ally.changeSpell('ally', type, [
@@ -314,33 +337,49 @@ export const AxieFigure = () => {
         })
       })
 
-      room.state.players.onRemove = function (player, sessionId) {
-        removeAxieFromScene(gameRef.current.enemy)
-      }
-
-      room.onMessage('action-start-game', ({ counter }) => {
-        setGameTimer(counter)
+      room.onMessage('player-joined', (players) => {
+        Object.values(players).map((player) => {
+          if (player.address !== mainPlayer.address && gameRef.current.enemy === undefined) {
+            console.log('add enemy')
+            addAxieToScene(player.axie, player.animation)
+            enemyAddress = player.address
+            setEnemyPlayerAddress(player.address)
+          }
+        })
       })
 
-      room.onMessage('action-taken', ({ sender, allyHealth, enemyHealth }) => {
+      room.onMessage('action-taken', ({ sender, allyHealth }) => {
         if (room.sessionId === sender) setAllyHealth(allyHealth)
       })
 
       room.onMessage('game-end', ({ winner }) => {
         console.log('winner: ', winner)
+        if (winner === mainPlayer.address) {
+          gameRef.current.ally.changeCurrentAnimation('activity/victory-pose-back-flip', true, 1)
+          setIsWin(true)
+        } else {
+          gameRef.current.enemy.changeCurrentAnimation('activity/victory-pose-back-flip', true, 1)
+          setIsWin(false)
+        }
       })
+
+      room.state.players.onRemove = function (player, sessionId) {
+        removeAxieFromScene(gameRef.current.enemy)
+        gameRef.current.enemy = undefined
+        setEnemyPlayerAddress('')
+        setEnemyHealth(100)
+        setAllyHealth(100)
+      }
 
       room.onLeave((code) => {
         removeAxieFromScene(gameRef.current.enemy)
+        gameRef.current.enemy = undefined
+        setEnemyPlayerAddress('')
+        setEnemyHealth(100)
+        setAllyHealth(100)
       })
     }
   }, [room])
-
-  useEffect(() => {
-    if (gameTimer - 5 >= 0) setIsGameStart(true)
-  }, [gameTimer])
-
-  const spells = ['stupefy', 'episkey', 'expecto patronum', 'avada kedavra']
 
   // Check what spell is calling
   useEffect(() => {
@@ -356,26 +395,41 @@ export const AxieFigure = () => {
         }
       }
     })
-    console.log('highest: ', highestScoreSpell)
+    console.log('Spell: ', highestScoreSpell)
+    // currentSpell.current = highestScoreSpell
+    setCurrentSpell(highestScoreSpell)
     if (highestScoreSpell === spells[0].toLowerCase()) hit()
     if (highestScoreSpell === spells[1].toLowerCase()) heal()
     if (highestScoreSpell === spells[2].toLowerCase()) shield()
     if (highestScoreSpell === spells[3].toLowerCase()) ultimate()
-
-    // setCurrentSpell(highestScoreSpell)
   }, [finalTranscript])
 
   const leaveRoom = async () => {
-    if (room) room.leave(false)
+    if (room) room.leave()
+    setIsGameStart(false)
   }
-  //#endregion
 
+  useEffect(() => {
+    let timer
+    if (allyHealth <= 0 || enemyHealth <= 0) {
+      timer = setTimeout(() => {
+        leaveRoom()
+      }, 5000)
+    }
+    return () => clearTimeout(timer)
+  }, [allyHealth, enemyHealth])
+
+  const copyRoomId = () => {
+    navigator.clipboard.writeText(room.id)
+  }
+
+  //#region ACTION
   const hit = () => {
     if (room)
       room.send('hit', {
         type: 'hit',
         animation: 'attack/ranged/cast-fly',
-        value: 10,
+        value: randomInRange(5, 15),
         sender: mainPlayer.address,
         receiver: enemyPlayerAddress,
       })
@@ -387,7 +441,7 @@ export const AxieFigure = () => {
       room.send('heal', {
         type: 'heal',
         animation: 'battle/get-buff',
-        value: 12,
+        value: randomInRange(5, 30),
         sender: mainPlayer.address,
         receiver: mainPlayer.address,
       })
@@ -399,7 +453,7 @@ export const AxieFigure = () => {
       room.send('shield', {
         type: 'shield',
         animation: 'defense/hit-with-shield',
-        value: 20,
+        value: randomInRange(15, 30),
         sender: mainPlayer.address,
         receiver: mainPlayer.address,
       })
@@ -411,12 +465,14 @@ export const AxieFigure = () => {
       room.send('ultimate', {
         type: 'ultimate',
         animation: 'attack/melee/horn-gore',
-        value: 50,
+        value: randomInRange(20, 50),
         sender: mainPlayer.address,
         receiver: enemyPlayerAddress,
       })
     else console.log('cannot send ultimate')
   }
+
+  //#endregion
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser does not support speech recognition.</span>
@@ -424,77 +480,166 @@ export const AxieFigure = () => {
 
   return (
     <div className={s.container}>
+      <div className={s.roomInfoHeader}>
+        {isGameStart && (
+          <>
+            <span className={s.roomId}>{room?.id}</span>
+            <img
+              className={s.copy}
+              src='/ui/copy.png'
+              alt='Landscape picture'
+              width={28}
+              height={28}
+              onClick={copyRoomId}
+            />
+            {room?.id && (
+              <img
+                className={s.outRoom}
+                src='/ui/out.png'
+                alt='Landscape picture'
+                width={113}
+                height={42}
+                onClick={leaveRoom}
+              />
+            )}
+          </>
+        )}
+      </div>
+      <div className={s.infoHeader}>
+        {!isGameStart ? (
+          <>
+            <img
+              className={s.createRoom}
+              src='/ui/create.png'
+              alt='Landscape picture'
+              width={203}
+              height={42}
+              onClick={createRoom}
+            />
+            <span className={s.splitText}>OR</span>
+            <input
+              placeholder='Room id'
+              className={s.roomIdInput}
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+            />
+            <img
+              className={s.joinRoom}
+              src='/ui/join.png'
+              alt='Landscape picture'
+              width={203}
+              height={42}
+              onClick={joinById}
+            />
+          </>
+        ) : (
+          <>
+            <span className={s.allyAddress}>
+              {mainPlayer?.address.length > 7 ? `${mainPlayer?.address.slice(0, 7)}...` : mainPlayer?.address}
+            </span>
+            <div className={s.healthBarAlly} style={{}}>
+              <div
+                className={s.healthBarAllyLayer}
+                style={{
+                  transform: `scaleX(${Math.max(allyHealth / 100, 0)})`,
+                  backgroundColor: allyHealth > 70 ? '#83e26b' : allyHealth > 70 ? '#E2A56B' : '#E26B6B',
+                }}></div>
+            </div>
+            <span className={s.vsText}>VS</span>
+            <span className={s.enemyAddress}>
+              {enemyPlayerAddress?.length > 7 ? `${enemyPlayerAddress?.slice(0, 7)}...` : enemyPlayerAddress}
+            </span>
+            <div className={s.healthBarEnemy} style={{}}>
+              <div
+                className={s.healthBarEnemyLayer}
+                style={{
+                  transform: `scaleX(${Math.max(enemyHealth / 100, 0)})`,
+                  backgroundColor: enemyHealth > 70 ? '#83e26b' : enemyHealth > 70 ? '#E2A56B' : '#E26B6B',
+                }}></div>
+            </div>
+          </>
+        )}
+      </div>
+
       <div ref={container} className={s.canvas}>
         {loading && <PuffLoading size={200} />}
       </div>
 
-      <div>
-        <p style={{ color: 'black' }}>Ally - {mainPlayer?.address}</p>
-        <progress id='file' value={allyHealth} max='100'>
-          {' '}
-          {allyHealth}{' '}
-        </progress>
-      </div>
-
-      <div>
-        <p style={{ color: 'black' }}>Enemy - {enemyPlayerAddress}</p>
-        <progress id='file' value={enemyHealth} max='100'>
-          {' '}
-          {enemyHealth}{' '}
-        </progress>
-      </div>
-
       {!mainPlayer && (
-        <>
-          <input value={mainPlayerAddress} onChange={(e) => setMainPlayerAddress(e.target.value)} />
-          <button className={s.createButton} onClick={handleMainPlayerAddress}>
-            Submit address
-          </button>
-        </>
+        <div className={s.overlay}>
+          <div className={s.inputAddressContainer}>
+            <img style={{ marginTop: 23 }} src='/ui/logo.png' alt='Landscape picture' width={278} height={176} />
+            <input
+              placeholder='Wallet address'
+              className={s.walletAddressInput}
+              value={mainPlayerAddress}
+              onChange={(e) => setMainPlayerAddress(e.target.value)}
+            />
+            <img
+              className={s.bringMeMagic}
+              src='/ui/bringmemagic.png'
+              alt='Landscape picture'
+              width={265}
+              height={42}
+              onClick={handleMainPlayerAddress}
+            />
+          </div>
+        </div>
       )}
 
-      <h3 style={{ color: 'red' }}>{gameTimer}</h3>
+      <div className={s.result}>
+        {isWin && enemyPlayerAddress && room && enemyHealth <= 0 && allyHealth >= 0 && (
+          <Image src='/ui/victory.png' alt='Landscape picture' width={272} height={180} />
+        )}
 
-      <button className={s.createButton} onClick={createRoom}>
-        Create room
-      </button>
+        {!isWin && enemyPlayerAddress && room && enemyHealth >= 0 && allyHealth <= 0 && (
+          <Image src='/ui/defeat.png' alt='Landscape picture' width={272} height={197} />
+        )}
+      </div>
 
-      <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
-
-      <button className={s.createButton} onClick={joinById}>
-        Join room by Id
-      </button>
-
-      <button className={s.createButton} onClick={leaveRoom}>
-        leave room
-      </button>
-
-      <button className={s.createButton} onClick={hit}>
-        HIT
-      </button>
-
-      <button className={s.createButton} onClick={heal}>
-        HEAL
-      </button>
-
-      <button className={s.createButton} onClick={shield}>
-        SHIELD
-      </button>
-
-      <button className={s.createButton} onClick={ultimate}>
-        ULTIMATE
-      </button>
-
-      {/* <h3 style={{ color: 'red' }}>Transcript {transcript}</h3> */}
-      <h3 style={{ color: 'red' }}>Final {finalTranscript}</h3>
-
-      <button
+      <div style={{ display: 'flex', width: 800, height: 93, justifyContent: 'space-between', marginTop: 8 }}>
+        {isGameStart && (
+          <>
+            <Image
+              src='/ui/hit.png'
+              alt='Landscape picture'
+              width={134}
+              height={93}
+              style={{ opacity: currentSpell === spells[0] ? 1 : 0.5 }}
+            />
+            <Image
+              src='/ui/heal.png'
+              alt='Landscape picture'
+              width={120}
+              height={92}
+              style={{ opacity: currentSpell === spells[1] ? 1 : 0.5 }}
+            />
+            <Image
+              src='/ui/shield.png'
+              alt='Landscape picture'
+              width={265}
+              height={93}
+              style={{ opacity: currentSpell === spells[2] ? 1 : 0.5 }}
+            />
+            <Image
+              src='/ui/ultimate.png'
+              alt='Landscape picture'
+              width={220}
+              height={93}
+              style={{ opacity: currentSpell === spells[3] ? 1 : 0.5 }}
+            />
+          </>
+        )}
+      </div>
+      <div
+        className={s.mic}
         onTouchStart={startListening}
         onMouseDown={startListening}
         onTouchEnd={SpeechRecognition.stopListening}
-        onMouseUp={SpeechRecognition.stopListening}>
-        Hold to talk
-      </button>
+        onMouseUp={SpeechRecognition.stopListening}
+        style={{ marginTop: 8, cursor: 'pointer', height: 147 }}>
+        {isGameStart && <Image src='/ui/mic.png' alt='Landscape picture' width={235} height={147} />}
+      </div>
     </div>
   )
 }

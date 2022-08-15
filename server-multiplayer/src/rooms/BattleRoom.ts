@@ -145,21 +145,23 @@ export class BattleRoom extends Room<State> {
     this.state.createPlayer(client.sessionId, options)
     console.log(`--> ${client.sessionId} joined`, options)
 
-    let counter = 0
-    if (this.state.players.size === 2 && !this.isGameStart) {
-      console.log('Full players')
+    this.broadcast('player-joined', this.state.players)
 
-      this.clock.start()
+    // let counter = 0
+    // if (this.state.players.size === 2 && !this.isGameStart) {
+    //   console.log('Full players')
 
-      this.delayedInterval = this.clock.setInterval(() => {
-        counter++
-        this.broadcast('action-start-game', { counter })
-      }, 1000)
+    //   this.clock.start()
 
-      this.clock.setTimeout(() => {
-        this.delayedInterval.clear()
-      }, 5000)
-    }
+    //   this.delayedInterval = this.clock.setInterval(() => {
+    //     counter++
+    //     this.broadcast('action-start-game', { counter })
+    //   }, 1000)
+
+    //   this.clock.setTimeout(() => {
+    //     this.delayedInterval.clear()
+    //   }, 5000)
+    // }
   }
 
   onLeave(client: Client, consented?: boolean): void | Promise<any> {

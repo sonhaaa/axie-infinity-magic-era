@@ -93,6 +93,52 @@ export class BattleRoom extends Room<State> {
         type: data.type,
       })
     })
+
+    this.onMessage('ultimate', (client, data) => {
+      const damage = data.value
+
+      const enemyHealth = this.state.getHealth(data.receiver)
+      const enemySpell = this.state.getSpell(data.receiver)
+
+      let health = 0
+      if (enemySpell === 'shield') {
+        if (damage > 20) health = enemyHealth - (damage - 20)
+        if (damage < 20) health = enemyHealth
+      } else {
+        health = enemyHealth - damage
+      }
+
+      this.state.setHealth(data.receiver, {
+        health: health,
+      })
+
+      if (this.state.getHealth(data.sender) <= 0 || this.state.getHealth(data.receiver) <= 0) {
+        this.broadcast('game-end', {
+          winner: this.state.getHealth(data.sender) <= 0 ? data.receiver : data.sender,
+        })
+      }
+
+      this.state.setAnimation(client.sessionId, data)
+      this.state.setSpell(client.sessionId, { spell: data.type })
+
+      this.broadcast('update-axie', {
+        sender: data.sender,
+        receiver: data.receiver,
+        animation: data.animation,
+        type: data.type,
+      })
+
+      this.broadcast('update-health', [
+        {
+          address: data.sender,
+          health: this.state.getHealth(data.sender),
+        },
+        {
+          address: data.receiver,
+          health: this.state.getHealth(data.receiver),
+        },
+      ])
+    })
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {

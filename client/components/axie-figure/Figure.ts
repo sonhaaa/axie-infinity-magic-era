@@ -7,7 +7,7 @@ import { Mixer } from './types'
 const VARIANT_LIST = variant.items
 
 export class Figure extends PIXI.spine.Spine {
-  static readonly resourcePath = 'http://127.0.0.1:5501/server-assets/assets/'
+  static readonly resourcePath = 'https://axiecdn.axieinfinity.com/mixer-stuffs/v2/'
   mixer: Mixer
 
   constructor(mixer: Mixer) {

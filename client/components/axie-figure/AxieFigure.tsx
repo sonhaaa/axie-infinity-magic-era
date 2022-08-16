@@ -92,7 +92,7 @@ export const AxieFigure = () => {
 
     // Connect to server
     // setClient(new Colyseus.Client('ws://localhost:2567'))
-    setClient(new Colyseus.Client('ws://aime-multiplayer.herokuapp.com/'))
+    setClient(new Colyseus.Client('https://aime-multiplayer.herokuapp.com/'))
 
     return () => {
       if (game) {

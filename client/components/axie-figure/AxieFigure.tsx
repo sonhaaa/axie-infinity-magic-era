@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as PIXI from 'pixi.js'
 import { useEffect, useRef, useState } from 'react'
 
@@ -11,7 +13,6 @@ import s from './styles.module.css'
 import { AxieDirection } from './types'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { FigureContainer } from './FigureContainer'
-import { Howl, Howler } from 'howler'
 
 import { sound } from '@pixi/sound'
 

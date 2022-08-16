@@ -1023,11 +1023,6 @@
   dependencies:
     "function-bind" "^1.1.1"
 
-"howler@^2.2.3":
-  "integrity" "sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg=="
-  "resolved" "https://registry.npmjs.org/howler/-/howler-2.2.3.tgz"
-  "version" "2.2.3"
-
 "httpie@^2.0.0-next.13":
   "integrity" "sha512-KbKOnq8wt0hVEfteYCSnEsPgzaWxcVc4qZ4OaDU9mVOYLRo3XChjWs3MiuRgFu5y+4JDo7sDKdKzkAn1ljQYFA=="
   "resolved" "https://registry.npmjs.org/httpie/-/httpie-2.0.0-next.13.tgz"

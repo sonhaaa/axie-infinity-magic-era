@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import * as PIXI from 'pixi.js'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import * as Colyseus from 'colyseus.js'
 import Image from 'next/image'
@@ -26,25 +26,19 @@ interface Player {
 
 PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
 
-export const AxieFigure = () => {
+export const AxieHouses = () => {
   const [loading, setLoading] = useState<boolean>()
   const [client, setClient] = useState(null)
   const [roomId, setRoomId] = useState<string>('')
   const [room, setRoom] = useState()
   const [mainPlayer, setMainPlayer] = useState<Player>()
-  const [mainPlayerAddress, setMainPlayerAddress] = useState(localStorage.getItem('mainPlayerAddress') || '')
+  const [mainPlayerAddress, setMainPlayerAddress] = useState('sdadasd')
   const [enemyPlayerAddress, setEnemyPlayerAddress] = useState<string>()
   const [isGameStart, setIsGameStart] = useState<boolean>(false)
   const [allyHealth, setAllyHealth] = useState<number>(100)
   const [enemyHealth, setEnemyHealth] = useState<number>(100)
   const [isWin, setIsWin] = useState<boolean>(false)
-
-  const [isHitAvailable, setIsHitAvailable] = useState(false)
-  const [isHealAvailable, setIsHealAvailable] = useState(false)
-  const [isShieldAvailable, setIsShieldAvailable] = useState(false)
-  const [isUltimateAvailable, setIsUltimateAvailable] = useState(false)
-
-  const [spellStartFlag, setSpellStartFlag] = useState(false)
+  const [currentSpell, setCurrentSpell] = useState<string>()
 
   const router = useRouter()
 
@@ -161,29 +155,13 @@ export const AxieFigure = () => {
     }
   }
 
-  useEffect(() => {
-    if (room) {
-      if (mainPlayer?.address && enemyPlayerAddress) setSpellStartFlag(true)
-    }
-  }, [room, mainPlayer?.address, enemyPlayerAddress])
-
-  useLayoutEffect(() => {
-    if (localStorage.getItem('mainPlayerAddress') && localStorage.getItem('mainPlayerAxie')) {
-      setMainPlayer({
-        address: localStorage.getItem('mainPlayerAddress'),
-        axie: localStorage.getItem('mainPlayerAxie'),
-      })
-    }
-  }, [])
-
   const handleMainPlayerAddress = async () => {
-    localStorage.setItem('mainPlayerAddress', mainPlayerAddress)
+    localStorage.setItem('address', mainPlayerAddress)
     const axieId = await randomAxieId()
     setMainPlayer({
       address: mainPlayerAddress,
       axie: axieId,
     })
-    localStorage.setItem('mainPlayerAxie', axieId)
   }
 
   useEffect(() => {
@@ -324,32 +302,18 @@ export const AxieFigure = () => {
       }
     })
     console.log('Spell: ', highestScoreSpell)
-    if (highestScoreSpell === spells[0].toLowerCase() && isHitAvailable) {
-      hit()
-      setIsHitAvailable(false)
-    }
-    if (highestScoreSpell === spells[1].toLowerCase() && isHealAvailable) {
-      heal()
-      setIsHealAvailable(false)
-    }
-    if (highestScoreSpell === spells[2].toLowerCase() && isShieldAvailable) {
-      shield()
-      setIsShieldAvailable(false)
-    }
-    if (highestScoreSpell === spells[3].toLowerCase() && isUltimateAvailable) {
-      ultimate()
-      setIsUltimateAvailable(false)
-    }
+    // currentSpell.current = highestScoreSpell
+    setCurrentSpell(highestScoreSpell)
+    if (highestScoreSpell === spells[0].toLowerCase()) hit()
+    if (highestScoreSpell === spells[1].toLowerCase()) heal()
+    if (highestScoreSpell === spells[2].toLowerCase()) shield()
+    if (highestScoreSpell === spells[3].toLowerCase()) ultimate()
   }, [finalTranscript])
 
   const leaveRoom = async () => {
     if (room) room.leave()
     gameRef.current.ally.changeSpell('ally', 'default', ['/spells-assets/default.png'])
-    setSpellStartFlag(false)
-    setIsHitAvailable(false)
-    setIsHealAvailable(false)
-    setIsShieldAvailable(false)
-    setIsUltimateAvailable(false)
+
     setIsGameStart(false)
   }
 
@@ -425,48 +389,6 @@ export const AxieFigure = () => {
 
   return (
     <div className={s.container}>
-      {/* HOME UI OVERLAY */}
-      {!isGameStart && (
-        <>
-          <div className={s.mainPlayerInfo}>
-            <img className={s.avatar} src='/ui/avatar.png' alt='Avatar' width={58} height={58} />
-            <span className={s.address}>{mainPlayer?.address}</span>
-            <div className={s.slp}>
-              <div className={s.slpWrapper}>
-                <img className={s.slpIcon} src='/ui/slp.png' alt='Smooth Love Postion' width={24} height={24} />
-                <span className={s.slpNumber}>3000</span>
-              </div>
-            </div>
-          </div>
-          <div className={s.uiOverlay}>
-            <>
-              <div className={s.houses} onClick={() => router.replace('/houses')}>
-                <img src='/ui/houses.png' alt='Houses' width={230} height={230} />
-              </div>
-              <div className={s.classroom} onClick={() => router.replace('/school')}>
-                <img src='/ui/school.png' alt='Classroom' width={230} height={230} />
-              </div>
-              <div className={s.wedding} onClick={() => router.replace('/wedding')}>
-                <img src='/ui/wedding.png' alt='Wedding' width={220} height={220} />
-              </div>
-            </>
-            <>
-              <div className={s.axiesBtn} onClick={() => router.replace('/teams')}>
-                <img src='/ui/axies-btn.png' alt='' width={50} height={57} />
-              </div>
-              <div className={s.summonBtn} onClick={() => router.push('/summon')}>
-                <img src='/ui/summon-btn.png' alt='' width={63} height={57} />
-              </div>
-              <div className={s.friendsBtn} onClick={() => router.replace('/wedding')}>
-                <img src='/ui/friends-btn.png' alt='' width={58} height={57} />
-              </div>
-              <div className={s.settingsBtn} onClick={() => router.replace('/wedding')}>
-                <img src='/ui/settings-btn.png' alt='' width={64} height={57} />
-              </div>
-            </>
-          </div>
-        </>
-      )}
       <div className={s.roomInfoHeader}>
         {isGameStart && (
           <>
@@ -584,7 +506,8 @@ export const AxieFigure = () => {
         )}
       </div>
 
-      {/* SPELL CARD */}
+      <button onClick={() => router.replace('/houses')}>Houses</button>
+
       <div
         style={{
           display: 'flex',
@@ -593,45 +516,15 @@ export const AxieFigure = () => {
           justifyContent: 'space-between',
           marginTop: 8,
         }}>
-        {spellStartFlag && (
-          <>
-            <SpellCard
-              key='hit'
-              type='hit'
-              countdown={isHitAvailable ? 0 : 5}
-              onFinish={() => setIsHitAvailable(true)}
-              spellName={spells[0]}
-              onClick={hit}
-            />
-            <SpellCard
-              key='heal'
-              type='heal'
-              countdown={isHealAvailable ? 0 : 10}
-              onFinish={() => setIsHealAvailable(true)}
-              spellName={spells[1]}
-              onClick={heal}
-            />
-            <SpellCard
-              key='shield'
-              type='shield'
-              countdown={isShieldAvailable ? 0 : 15}
-              onFinish={() => setIsShieldAvailable(true)}
-              spellName={spells[2]}
-              onClick={shield}
-            />
-            <SpellCard
-              key='ultimate'
-              type='ultimate'
-              countdown={isUltimateAvailable ? 0 : 30}
-              onFinish={() => setIsUltimateAvailable(true)}
-              spellName={spells[3]}
-              onClick={ultimate}
-            />
-          </>
-        )}
+        {/* {isGameStart && ( */}
+        <>
+          <SpellCard type='primary' countdown={5} spellName='Episky' onClick={hit} />
+          <SpellCard type='primary' countdown={7} spellName='Stupefy' onClick={heal} />
+          <SpellCard type='primary' countdown={2} spellName='Avadar Kedavra' onClick={shield} />
+          <SpellCard type='primary' countdown={10} spellName='Avadar Kedavra' onClick={ultimate} />
+        </>
+        {/* )} */}
       </div>
-
-      {/* HOLD TO SPEAK */}
       <div
         className={s.mic}
         onTouchStart={startListening}
@@ -639,7 +532,7 @@ export const AxieFigure = () => {
         onTouchEnd={SpeechRecognition.stopListening}
         onMouseUp={SpeechRecognition.stopListening}
         style={{ marginTop: 8, cursor: 'pointer' }}>
-        {spellStartFlag && <Image src='/ui/mic.png' alt='Landscape picture' width={235} height={147} />}
+        {isGameStart && <Image src='/ui/mic.png' alt='Landscape picture' width={235} height={147} />}
       </div>
     </div>
   )

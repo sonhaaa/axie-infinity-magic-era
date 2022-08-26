@@ -187,6 +187,7 @@ export const randomAxieId = async () => {
 
   const mixer = new AxieMixer(genes).getAssets()
   if (!mixer) randomAxieId()
+  console.log(randomId)
   return randomId.toString()
 }
 

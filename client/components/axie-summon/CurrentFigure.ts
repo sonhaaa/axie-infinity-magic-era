@@ -2,13 +2,12 @@ import { Key, keyboard } from '../../utils/helper'
 import { Figure } from './Figure'
 import { AxieDirection, Mixer } from './types'
 
-export class FigureContainer extends PIXI.Container {
+export class CurrentFigure extends PIXI.Container {
   currentSpine?: Figure
   currentAnimation: string
   keys: Record<string, Key>
   vx: number
   direction: AxieDirection
-  currentSpell: PIXI.extras.AnimatedSprite
 
   constructor() {
     super()
@@ -29,90 +28,6 @@ export class FigureContainer extends PIXI.Container {
     this.currentSpine.scale.x = 0.18 * this.direction
     this.changeCurrentAnimation(this.currentAnimation, true)
     this.removeChild(prevSpine)
-  }
-
-  async changeSpell(type: string, spellType: string, spellFrames: string[]) {
-    this.removeChild(this.currentSpell)
-    const prevSpell = this.currentSpell
-
-    // const texture = PIXI.Texture.from(spellImageUrl)
-
-    let textureArray = []
-
-    let frame = 0
-
-    if (spellType === 'hit') frame = 7
-    if (spellType === 'heal' || spellType === 'ultimate') frame = 12
-    if (spellType === 'shield') frame = 15
-    if (spellType === 'default') frame = 1
-
-    for (let i = 0; i < frame; i++) {
-      let texture = PIXI.Texture.from(spellFrames[i])
-      textureArray.push(texture)
-    }
-
-    let animatedSprite = new PIXI.extras.AnimatedSprite(textureArray)
-
-    animatedSprite.play()
-    animatedSprite.animationSpeed = 0.25
-
-    if (spellType !== 'shield') {
-      animatedSprite.onComplete = () => animatedSprite.destroy()
-      animatedSprite.loop = false
-    }
-
-    this.currentSpell = animatedSprite
-
-    this.addChild(this.currentSpell)
-    if (type === 'ally') {
-      if (spellType === 'heal') {
-        this.currentSpell.scale.set(3, 3)
-        this.currentSpell.position.set(-180, -335)
-      }
-
-      if (spellType === 'hit') {
-        this.currentSpell.scale.set(2 * this.direction, 2)
-        this.currentSpell.position.set(370, -320)
-      }
-
-      if (spellType === 'shield') {
-        this.currentSpell.scale.set(0.85 * -this.direction, 0.85)
-        this.currentSpell.position.set(140, -135)
-      }
-
-      if (spellType === 'ultimate') {
-        this.currentSpell.scale.set(2, 6)
-        this.currentSpell.position.set(650, -550)
-        this.currentSpell.rotation = 45
-      }
-    }
-
-    if (type === 'enemy') {
-      if (spellType === 'heal') {
-        this.currentSpell.scale.set(3, 3)
-        this.currentSpell.position.set(-170, -335)
-      }
-
-      if (spellType === 'hit') {
-        this.currentSpell.scale.set(2 * -this.direction, 2)
-        this.currentSpell.position.set(-370, 110)
-      }
-
-      if (spellType === 'shield') {
-        this.currentSpell.scale.set(0.85 * this.direction, 0.85)
-        this.currentSpell.position.set(-140, -135)
-      }
-
-      if (spellType === 'ultimate') {
-        this.currentSpell.scale.set(2, 6)
-        this.currentSpell.position.set(-700, 480)
-        this.currentSpell.rotation = 4.2
-      }
-    }
-
-    // console.log(animatedSprite.currentFrame)
-
-    this.removeChild(prevSpell)
   }
 
   async changeSpineFromMixer(loader: PIXI.loaders.Loader, mixer: Mixer) {

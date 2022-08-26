@@ -48,7 +48,7 @@ const Timer = memo(function Timer({ setIsTimerDone, seconds = 15, setIsAvailable
   return <span>{showSec}</span>
 })
 
-export const SpellCard = ({ type, countdown, spellName, onClick, onFinish }) => {
+export const SpellCard = ({ scale, type, countdown, spellName, onClick, onFinish }) => {
   const [isTimerDone, setIsTimerDone] = useState(false)
 
   useEffect(() => {
@@ -58,9 +58,9 @@ export const SpellCard = ({ type, countdown, spellName, onClick, onFinish }) => 
   return (
     <div
       style={{
-        height: 132,
         position: 'relative',
         opacity: !isTimerDone ? 0.5 : 1,
+        transform: `scale(${scale})`,
       }}
       onClick={onClick}>
       <div

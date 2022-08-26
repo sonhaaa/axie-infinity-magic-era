@@ -14,57 +14,6 @@
   display: flex;
 }
 
-.column1,
-.column2,
-.column3 {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.column1,
-.column3 {
-  width: 30%;
-}
-
-.column2 {
-  width: 40%;
-}
-
-.partsColumn {
-  display: flex;
-  flex-direction: column;
-  height: 42%;
-  width: 141px;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-
-.bottomColumn {
-  display: flex;
-  flex-direction: column;
-  height: 24%;
-  width: 141px;
-  justify-content: space-between;
-  margin: 30px;
-}
-
-.createButton {
-  height: 33px;
-  font-size: 14px;
-  background-color: #0094ff;
-  border: 1px solid #0094ff;
-  border-radius: 4px;
-  color: white;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-.createButton:hover {
-  cursor: pointer;
-}
-
 .canvas {
   overflow: hidden;
   border-radius: 4px;
@@ -73,249 +22,153 @@
   border-radius: 15px;
 }
 
-.infoHeader {
+.header {
   width: 800px;
-  height: 92px;
-  background-color: #282b39;
-  border-radius: 15px;
-  margin-bottom: 8px;
-  position: relative;
-  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.roomIdInput {
-  width: 248px;
-  height: 42px;
-  background: #282b39;
-  border-radius: 12px;
-  border: 3px solid;
-  background: linear-gradient(0deg, #282b39, #282b39), linear-gradient(90.45deg, #df7862 1.03%, #dd9788 101.46%);
-  position: absolute;
-  top: 25px;
-  left: 306px;
-  padding-left: 18px;
-  padding-right: 18px;
-  font-size: 24px;
+.title {
   font-family: 'GUMDROP';
+  font-size: 36px;
+  color: #000;
+}
+
+.backBtn {
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.backBtn:active {
+  transform: scale(0.9);
+}
+
+.gryf {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 387px;
+  top: 297px;
+
+  border: 6px solid #887d87;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.slyt {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 580px;
+  top: 297px;
+
+  border: 6px solid #887d87;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.rave {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 387px;
+  top: 491px;
+
+  border: 6px solid #887d87;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.huff {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 580px;
+  top: 491px;
+
+  border: 6px solid #887d87;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.joinHouse {
+  right: 0;
+  bottom: 130px;
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.joinHouse:active {
+  transform: scale(0.9);
+}
+
+.houseName {
   color: #fff;
-  outline: none;
-}
-
-.roomIdInput::outline {
-  display: none;
-}
-
-.createRoom {
   position: absolute;
-  top: 25px;
-  left: 32px;
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  cursor: pointer;
-}
-
-.createRoom:active {
-  transform: scale(0.8);
-}
-
-.joinRoom {
-  position: absolute;
-  top: 25px;
-  right: 32px;
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  cursor: pointer;
-}
-
-.joinRoom:active {
-  transform: scale(0.8);
-}
-
-.splitText {
-  width: 29px;
-  height: 23px;
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 23px;
-  left: 256px;
-  top: 35px;
-  position: absolute;
-  font-family: 'GUMDROP';
-}
-
-.allyAddress {
-  position: absolute;
-  font-family: 'GUMDROP';
-  top: 22px;
-  left: 28px;
-  color: #bfc6e2;
-  font-size: 20px;
-  line-height: 19px;
-}
-
-.enemyAddress {
-  position: absolute;
-  font-family: 'GUMDROP';
-  top: 22px;
-  right: 28px;
-  color: #bfc6e2;
-  font-size: 20px;
-  line-height: 19px;
-}
-
-.vsText {
-  position: absolute;
-  width: 59px;
-  height: 53px;
-  font-family: 'GUMDROP';
-  font-size: 55.4545px;
-  line-height: 53px;
-  top: 20px;
-  left: 371px;
-}
-
-.healthBarAlly {
-  width: 294px;
-  height: 20px;
-  border-radius: 5px;
-  border: 3px solid #b7bac7;
-  position: absolute;
-  left: 28px;
-  top: 46px;
-  background: #616473;
-}
-
-.healthBarAllyLayer {
-  width: 100%;
-  height: 100%;
-  border-radius: 2px;
-  background: #83e26b;
-  transform: scaleX(0.7);
-  transform-origin: left;
-}
-
-.healthBarEnemy {
-  width: 294px;
-  height: 20px;
-  border-radius: 5px;
-  border: 3px solid #b7bac7;
-  position: absolute;
-  right: 28px;
-  top: 46px;
-  background: #616473;
-}
-
-.healthBarEnemyLayer {
-  width: 100%;
-  height: 100%;
-  border-radius: 2px;
-  background: #83e26b;
-  transform: scaleX(0.7);
-  transform-origin: right;
-  transition: transform all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-}
-
-.roomInfoHeader {
-  width: 800px;
-  position: relative;
-  height: 42px;
-}
-
-.roomId {
-  top: 4px;
-  position: absolute;
+  left: 50px;
+  top: 290px;
   font-family: 'GUMDROP';
   font-size: 32px;
-  line-height: 37px;
-  color: #000000;
 }
 
-.outRoom {
-  position: absolute;
-  right: 0;
-  cursor: pointer;
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  cursor: pointer;
-}
-
-.outRoom:active {
-  transform: scale(0.8);
-}
-
-.copy {
-  position: absolute;
-  top: 8px;
-  left: 190px;
-  cursor: pointer;
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  cursor: pointer;
-}
-
-.copy:active {
-  transform: scale(0.8);
-}
-
-.result {
-  position: absolute;
-  top: 350px;
-}
-
-.mic {
-  /* position: absolute;
-  bottom: 0; */
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.mic:active {
-  transform: scale(0.8);
-}
-
-.overlay {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  z-index: 999;
-  background: rgba(235, 217, 254, 0.8);
-}
-
-.inputAddressContainer {
-  width: 530px;
-  height: 384px;
-  border-radius: 30px;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.walletAddressInput {
-  border: 3px solid #df7862;
-  border-radius: 12px;
-  width: 80%;
-  height: 44px;
+.sub1 {
   font-family: 'GUMDROP';
-  font-size: 24px;
-  line-height: 23px;
-  padding-left: 20px;
-  padding-right: 20px;
-  outline: none;
-  color: #474747;
-  /* margin-top: 12px; */
-  margin-top: 32px;
+  font-size: 20px;
+  position: absolute;
+  left: 50px;
+  top: 336px;
+  color: #b8b8b8;
 }
 
-.walletAddressInput::placeholder {
-  color: #afafaf;
+.spec {
+  width: 255px;
+  height: 20px;
+  position: absolute;
+  top: 372px;
+  left: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'GUMDROP';
+  font-size: 20px;
 }
 
-.bringMeMagic {
-  margin-top: 28px;
-  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  cursor: pointer;
+.sub2 {
+  font-family: 'GUMDROP';
+  font-size: 20px;
+  position: absolute;
+  left: 50px;
+  top: 535px;
+  color: #b8b8b8;
 }
 
-.bringMeMagic:active {
-  transform: scale(0.9);
+.spells {
+  width: 255px;
+  height: 112px;
+  top: 578px;
+  position: absolute;
+  left: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
+  justify-content: space-around;
+}
+
+.spells::-webkit-scrollbar {
+  display: none;
 }

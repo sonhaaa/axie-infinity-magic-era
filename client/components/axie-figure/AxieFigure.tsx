@@ -489,6 +489,11 @@ export const AxieFigure = () => {
                 <img src='/ui/settings-btn.png' alt='' width={64} height={57} />
               </div>
             </>
+            <>
+              <div className={s.bossBtn} onClick={() => router.replace('/boss')}>
+                <img src='/ui/boss.png' alt='' width={111} height={81} />
+              </div>
+            </>
           </div>
         </>
       )}

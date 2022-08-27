@@ -94,13 +94,4 @@ export class PlaygroundGame extends PIXI.Application {
   remove(figureContainer: FigureContainer) {
     this.stage?.removeChild(figureContainer)
   }
-
-  addTextureTo(type: string, imageUri: string) {
-    const texture = PIXI.Texture.from(imageUri)
-
-    const image = new PIXI.Sprite(texture)
-
-    if (type === 'ally') this.ally.addChild(image)
-    if (type === 'enemy') this.enemy.addChild(image)
-  }
 }

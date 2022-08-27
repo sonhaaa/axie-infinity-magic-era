@@ -62,7 +62,11 @@ export const AxieBoss = () => {
     sound.add('background', {
       url: 'sounds/background.mp3',
       loop: true,
+      autoPlay: true,
+      volume: 0.1,
     })
+
+    return () => sound.removeAll()
   }, [])
 
   useEffect(() => {

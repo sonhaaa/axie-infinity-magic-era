@@ -63,7 +63,9 @@ export const AxieFigure = () => {
     localStorage.getItem('hitSpell') || '',
     localStorage.getItem('healSpell') || '',
     localStorage.getItem('shieldSpell') || '',
-    localStorage.getItem('ultimateSpell') === 'null' ? '' : localStorage.getItem('ultimateSpell'),
+    localStorage.getItem('ultimateSpell') === 'null' || !localStorage.getItem('ultimateSpell')
+      ? ''
+      : localStorage.getItem('ultimateSpell'),
   ]
 
   const container = useRef<HTMLDivElement>(null)
@@ -87,6 +89,8 @@ export const AxieFigure = () => {
     sound.play('background', {
       volume: 0.1,
     })
+
+    return () => sound.removeAll()
   }, [])
 
   const initMainPlayerAxies = async () => {
@@ -100,8 +104,8 @@ export const AxieFigure = () => {
 
   const pickAxieSoul = () => {
     const axies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
-    localStorage.setItem('mainPlayerAxieSoulLeft', JSON.stringify(axies[0]))
-    localStorage.setItem('mainPlayerAxieSoulRight', JSON.stringify(axies[2]))
+    localStorage.setItem('mainPlayerAxieSoulLeft', axies[0])
+    localStorage.setItem('mainPlayerAxieSoulRight', axies[2])
   }
 
   // Init game
@@ -570,7 +574,7 @@ export const AxieFigure = () => {
               <div className={s.axiesBtn} onClick={() => router.replace('/teams')}>
                 <img src='/ui/axies-btn.png' alt='' width={50} height={57} />
               </div>
-              <div className={s.summonBtn} onClick={() => router.push('/summon')}>
+              <div className={s.summonBtn} onClick={() => router.replace('/summon')}>
                 <img src='/ui/summon-btn.png' alt='' width={63} height={57} />
               </div>
               <div className={s.spellsBtn} onClick={() => router.replace('/spells')}>

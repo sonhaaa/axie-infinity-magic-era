@@ -31,11 +31,14 @@ export const AxieSpells = () => {
   const [mainAxieSpells, setMainAxieSpells] = useState([])
   const [soulRightSpells, setSoulRightSpells] = useState([])
   const [soulLeftSpells, setSoulLeftSpells] = useState([])
+  const [housesSpells, setHousesSpells] = useState(JSON.parse(localStorage.getItem('housesSpells')))
 
   const [hitSelected, setHitSelected] = useState(localStorage.getItem('hitSpell'))
   const [healSelected, setHealSelected] = useState(localStorage.getItem('healSpell'))
   const [shieldSelected, setShieldSelected] = useState(localStorage.getItem('shieldSpell'))
   const [ultimateSelected, setUltimateSelected] = useState(localStorage.getItem('ultimateSpell'))
+
+  const [uS, setUS] = useState(localStorage.getItem('ultimateSpell'))
 
   const mainPlayerAxie = JSON.parse(localStorage.getItem('mainPlayerAxie'))
   const mainPlayerAxieSoulRight = JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight'))
@@ -58,7 +61,11 @@ export const AxieSpells = () => {
     sound.add('background', {
       url: 'sounds/background.mp3',
       loop: true,
+      autoPlay: true,
+      volume: 0.1,
     })
+
+    return () => sound.removeAll()
   }, [])
 
   // Init game
@@ -96,6 +103,7 @@ export const AxieSpells = () => {
     hitSelected && localStorage.setItem('hitSpell', hitSelected)
     healSelected && localStorage.setItem('healSpell', healSelected)
     shieldSelected && localStorage.setItem('shieldSpell', shieldSelected)
+    ultimateSelected && localStorage.setItem('ultimateSpell', ultimateSelected)
     localStorage.setItem('isSaveSpell', true)
   }
 
@@ -105,7 +113,7 @@ export const AxieSpells = () => {
         <span className={s.title}>Spells</span>
         <img
           className={s.backBtn}
-          onClick={() => router.push('/')}
+          onClick={() => router.replace('/')}
           src='/ui/back.png'
           alt='Back'
           width={97}
@@ -126,7 +134,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => {
                       setHitSelected(spell.spell)
                     }}
@@ -142,7 +150,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => {
                       setHitSelected(spell.spell)
                     }}
@@ -158,7 +166,23 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
+                    onClick={() => {
+                      setHitSelected(spell.spell)
+                    }}
+                  />
+                ),
+            )}
+            {housesSpells?.map(
+              (spell) =>
+                spell.type === 'hit' && (
+                  <SpellCard
+                    key={spell.spell}
+                    type={spell.type}
+                    countdown={1}
+                    spellName={spell.spell}
+                    onFinish={() => {}}
+                    scale={0.7}
                     onClick={() => {
                       setHitSelected(spell.spell)
                     }}
@@ -168,7 +192,7 @@ export const AxieSpells = () => {
           </div>
           <div className={s.pickedSpell}>
             {hitSelected && (
-              <SpellCard type='hit' countdown={1} spellName={hitSelected} onFinish={() => {}} scale={0.72} />
+              <SpellCard type='hit' countdown={1} spellName={hitSelected} onFinish={() => {}} scale={0.7} />
             )}
           </div>
         </div>
@@ -184,7 +208,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setHealSelected(spell.spell)}
                   />
                 ),
@@ -198,7 +222,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setHealSelected(spell.spell)}
                   />
                 ),
@@ -212,15 +236,31 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setHealSelected(spell.spell)}
+                  />
+                ),
+            )}
+            {housesSpells?.map(
+              (spell) =>
+                spell.type === 'heal' && (
+                  <SpellCard
+                    key={spell.spell}
+                    type={spell.type}
+                    countdown={1}
+                    spellName={spell.spell}
+                    onFinish={() => {}}
+                    scale={0.7}
+                    onClick={() => {
+                      setHealSelected(spell.spell)
+                    }}
                   />
                 ),
             )}
           </div>
           <div className={s.pickedSpell}>
             {healSelected && (
-              <SpellCard type='heal' countdown={1} spellName={healSelected} onFinish={() => {}} scale={0.72} />
+              <SpellCard type='heal' countdown={1} spellName={healSelected} onFinish={() => {}} scale={0.7} />
             )}
           </div>
         </div>
@@ -236,7 +276,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setShieldSelected(spell.spell)}
                   />
                 ),
@@ -250,7 +290,7 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setShieldSelected(spell.spell)}
                   />
                 ),
@@ -264,23 +304,69 @@ export const AxieSpells = () => {
                     countdown={1}
                     spellName={spell.spell}
                     onFinish={() => {}}
-                    scale={0.72}
+                    scale={0.7}
                     onClick={() => setShieldSelected(spell.spell)}
+                  />
+                ),
+            )}
+            {housesSpells?.map(
+              (spell) =>
+                spell.type === 'shield' && (
+                  <SpellCard
+                    key={spell.spell}
+                    type={spell.type}
+                    countdown={1}
+                    spellName={spell.spell}
+                    onFinish={() => {}}
+                    scale={0.7}
+                    onClick={() => {
+                      setShieldSelected(spell.spell)
+                    }}
                   />
                 ),
             )}
           </div>
           <div className={s.pickedSpell}>
             {shieldSelected && (
-              <SpellCard type='shield' countdown={1} spellName={shieldSelected} onFinish={() => {}} scale={0.72} />
+              <SpellCard type='shield' countdown={1} spellName={shieldSelected} onFinish={() => {}} scale={0.7} />
             )}
           </div>
         </div>
         <div className={s.spellContainer} style={{ left: 605 }}>
           <span className={s.titleSpell}>Ultimate</span>
           <div className={s.spellWrapper}>
-            {ultimateSelected !== 'null' && (
-              <SpellCard type='ultimate' countdown={1} spellName={ultimateSelected} onFinish={() => {}} scale={0.72} />
+            {uS !== 'null' && uS && (
+              <SpellCard
+                type='ultimate'
+                countdown={1}
+                spellName={uS}
+                onFinish={() => {}}
+                scale={0.7}
+                onClick={() => {
+                  setUltimateSelected(uS)
+                }}
+              />
+            )}
+            {housesSpells?.map(
+              (spell) =>
+                spell.type === 'ultimate' && (
+                  <SpellCard
+                    key={spell.spell}
+                    type={spell.type}
+                    countdown={1}
+                    spellName={spell.spell}
+                    onFinish={() => {}}
+                    scale={0.7}
+                    onClick={() => {
+                      setUltimateSelected(spell.spell)
+                    }}
+                  />
+                ),
+            )}
+          </div>
+          <div className={s.pickedSpell}>
+            {ultimateSelected && (
+              <SpellCard type='ultimate' countdown={1} spellName={ultimateSelected} onFinish={() => {}} scale={0.7} />
             )}
           </div>
         </div>

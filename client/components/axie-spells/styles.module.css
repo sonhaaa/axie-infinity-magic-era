@@ -89,7 +89,7 @@
 }
 
 .spellWrapper > div {
-  margin-bottom: -8px;
+  margin-bottom: -16px;
   cursor: pointer;
   transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
@@ -103,6 +103,10 @@
 }
 
 .spellWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.spellWrap::-webkit-scrollbar {
   display: none;
 }
 

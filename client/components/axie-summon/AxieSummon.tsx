@@ -49,7 +49,11 @@ export const AxieSummon = () => {
     sound.add('background', {
       url: 'sounds/background.mp3',
       loop: true,
+      autoPlay: true,
+      volume: 0.1,
     })
+
+    return () => sound.removeAll()
   }, [])
 
   // Init game
@@ -114,6 +118,7 @@ export const AxieSummon = () => {
     const mainPlayerAxies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
     mainPlayerAxies.push(axieSummoned)
     localStorage.setItem('mainPlayerAxies', JSON.stringify(mainPlayerAxies))
+    router.replace('/teams')
   }
 
   if (!browserSupportsSpeechRecognition) {
@@ -125,7 +130,7 @@ export const AxieSummon = () => {
       <div className={s.header}>
         <span className={s.title}>Summon</span>
         <img
-          onClick={() => router.push('/')}
+          onClick={() => router.replace('/')}
           className={s.backBtn}
           src='/ui/back.png'
           alt='Smooth Love Postion'
@@ -152,6 +157,7 @@ export const AxieSummon = () => {
                 countdown={1}
                 spellName={spell.spell}
                 onFinish={() => {}}
+                scale={0.8}
               />
             ))}
           </div>

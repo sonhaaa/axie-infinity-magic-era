@@ -158,7 +158,7 @@
 }
 
 .spells {
-  width: 255px;
+  width: 305px;
   height: 112px;
   top: 578px;
   position: absolute;
@@ -167,6 +167,10 @@
   flex-wrap: wrap;
   overflow: auto;
   justify-content: space-around;
+}
+
+.spells > div {
+  margin-bottom: -16px;
 }
 
 .spells::-webkit-scrollbar {

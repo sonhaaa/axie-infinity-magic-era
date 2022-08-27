@@ -27,7 +27,7 @@ export const AxieHouses = () => {
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
 
-  const [selected, setSelected] = useState('gryffindor')
+  const [selected, setSelected] = useState(localStorage.getItem('house') || 'gryffindor')
 
   const houses = {
     gryffindor: {
@@ -37,28 +37,20 @@ export const AxieHouses = () => {
       ultimate: 10,
       spells: [
         {
-          name: 'abc',
+          spell: 'dissendium',
           type: 'hit',
         },
         {
-          name: 'def',
-          type: 'heal',
-        },
-        {
-          name: 'abc',
+          spell: 'incendio',
           type: 'hit',
         },
         {
-          name: 'defasdasd',
+          spell: 'expulso',
+          type: 'hit',
+        },
+        {
+          spell: 'diffindo',
           type: 'ultimate',
-        },
-        {
-          name: 'adqwfasd',
-          type: 'hit',
-        },
-        {
-          name: 'fasfqweasd',
-          type: 'heal',
         },
       ],
     },
@@ -69,12 +61,20 @@ export const AxieHouses = () => {
       ultimate: 10,
       spells: [
         {
-          name: 'abc',
-          type: 'hit',
+          spell: 'repello muggletum',
+          type: 'shield',
         },
         {
-          name: 'def',
-          type: 'heal',
+          spell: 'muffliato',
+          type: 'shield',
+        },
+        {
+          spell: 'muffliato',
+          type: 'shield',
+        },
+        {
+          spell: 'diffindo',
+          type: 'ultimate',
         },
       ],
     },
@@ -85,12 +85,20 @@ export const AxieHouses = () => {
       ultimate: 10,
       spells: [
         {
-          name: 'abc',
-          type: 'hit',
+          spell: 'conffingo',
+          type: 'heal',
         },
         {
-          name: 'def',
+          spell: 'aguamenti',
           type: 'heal',
+        },
+        {
+          spell: 'Anapneo',
+          type: 'heal',
+        },
+        {
+          spell: 'anteoculatia',
+          type: 'ultimate',
         },
       ],
     },
@@ -101,12 +109,20 @@ export const AxieHouses = () => {
       ultimate: 30,
       spells: [
         {
-          name: 'abc',
+          spell: 'brackium emendo',
+          type: 'heal',
+        },
+        {
+          spell: 'arania exumai',
           type: 'hit',
         },
         {
-          name: 'def',
-          type: 'heal',
+          spell: 'avenseguim',
+          type: 'shield',
+        },
+        {
+          spell: 'aqua eructo',
+          type: 'ultimate',
         },
       ],
     },
@@ -117,7 +133,11 @@ export const AxieHouses = () => {
     sound.add('background', {
       url: 'sounds/background.mp3',
       loop: true,
+      autoPlay: true,
+      volume: 0.1,
     })
+
+    return () => sound.removeAll()
   }, [])
 
   // Init game
@@ -150,13 +170,18 @@ export const AxieHouses = () => {
     }
   }, [mainPlayer])
 
+  const joinHouse = () => {
+    localStorage.setItem('house', selected)
+    localStorage.setItem('housesSpells', JSON.stringify(houses[selected].spells))
+  }
+
   return (
     <div className={s.container}>
       <div className={s.header}>
         <span className={s.title}>Houses</span>
         <img
           className={s.backBtn}
-          onClick={() => router.push('/')}
+          onClick={() => router.replace('/')}
           src='/ui/back.png'
           alt='Back'
           width={97}
@@ -192,7 +217,14 @@ export const AxieHouses = () => {
         </div>
       </>
 
-      <img className={s.joinHouse} src='/ui/join-house.png' alt='Join house' width={177} height={42} />
+      <img
+        className={s.joinHouse}
+        src='/ui/join-house.png'
+        alt='Join house'
+        width={177}
+        height={42}
+        onClick={joinHouse}
+      />
 
       <>
         <span className={s.houseName}>{selected.charAt(0).toUpperCase() + selected.slice(1)}</span>
@@ -217,14 +249,14 @@ export const AxieHouses = () => {
         <span className={s.sub2}>House&apos;s spell</span>
 
         <div className={s.spells}>
-          {houses[selected].spells.map((spell) => (
+          {houses[selected].spells.map((spell, index) => (
             <SpellCard
-              scale={0.8}
-              key={spell.type}
+              scale={0.7}
+              key={index}
               type={spell.type}
               countdown={1}
               onFinish={() => {}}
-              spellName={spell.name}
+              spellName={spell.spell}
             />
           ))}
         </div>

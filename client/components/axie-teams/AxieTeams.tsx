@@ -3,27 +3,18 @@
 import * as PIXI from 'pixi.js'
 import { useEffect, useRef, useState } from 'react'
 
-import Image from 'next/image'
 import 'pixi-spine'
-import {
-  checkCosineSimilarity,
-  getAxieClass,
-  getCosineSimilarityScore,
-  randomAxieId,
-  randomInRange,
-} from '../../utils/helper'
+import { getAxieClass } from '../../utils/helper'
 import { PuffLoading } from '../puff-loading/PuffLoading'
 import { PlaygroundGame } from './PlaygroundGame'
 import s from './styles.module.css'
 import { AxieDirection } from './types'
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
-import { FigureContainer } from './FigureContainer'
 
 import { sound } from '@pixi/sound'
 
 import { useRouter } from 'next/router'
-import { SpellCard } from '../spell-card/SpellCard'
 import { BEST_TEAMS } from '../../utils/sampleData'
+import { SpellCard } from '../spell-card/SpellCard'
 
 interface Player {
   address: string
@@ -40,13 +31,9 @@ export const AxieTeams = () => {
 
   const mainPlayerAxies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
 
-  const [mainPlayerAxie, setMainPlayerAxie] = useState(JSON.parse(localStorage.getItem('mainPlayerAxie')))
-  const [mainPlayerAxieRight, setMainPlayerAxieRight] = useState(
-    JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight')),
-  )
-  const [mainPlayerAxieLeft, setMainPlayerAxieLeft] = useState(
-    JSON.parse(localStorage.getItem('mainPlayerAxieSoulLeft')),
-  )
+  const [mainPlayerAxie, setMainPlayerAxie] = useState(localStorage.getItem('mainPlayerAxie'))
+  const [mainPlayerAxieRight, setMainPlayerAxieRight] = useState(localStorage.getItem('mainPlayerAxieSoulRight'))
+  const [mainPlayerAxieLeft, setMainPlayerAxieLeft] = useState(localStorage.getItem('mainPlayerAxieSoulLeft'))
 
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
@@ -62,7 +49,10 @@ export const AxieTeams = () => {
     sound.add('background', {
       url: 'sounds/background.mp3',
       loop: true,
+      autoPlay: true,
+      volume: 0.1,
     })
+    return () => sound.removeAll()
   }, [])
 
   // Init game
@@ -132,7 +122,7 @@ export const AxieTeams = () => {
         setMainPlayerAxieLeft(axiePanelSelected)
       }
     }
-  }, [axiePanelSelected, selected])
+  }, [axiePanelSelected])
 
   const saveTeam = () => {
     localStorage.setItem('mainPlayerAxieSoulLeft', mainPlayerAxieLeft)
@@ -174,7 +164,7 @@ export const AxieTeams = () => {
       <div className={s.header}>
         <span className={s.title}>Teams</span>
         <img
-          onClick={() => router.push('/')}
+          onClick={() => router.replace('/')}
           className={s.backBtn}
           src='/ui/back.png'
           alt='Back'
@@ -227,7 +217,6 @@ export const AxieTeams = () => {
         ))}
       </div>
 
-      {console.log(axieClasses)}
       {/* GUIDE */}
       {isShowGuide && axieClasses && (
         <div className={s.guide}>

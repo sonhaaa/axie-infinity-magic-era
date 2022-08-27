@@ -2,73 +2,73 @@ export const SPELL_MAPPING = {
   bug: {
     type: 'hit',
     eyes: {
-      spell: 'hit-1-e',
+      spell: 'immobulus',
     },
     mouth: {
-      spell: 'hit-1-m',
+      spell: 'expelliarmus',
     },
     horn: {
-      spell: 'hit-1-h',
+      spell: 'alarte ascendare',
     },
   },
   beast: {
     type: 'hit',
     eyes: {
-      spell: 'hit-2-e',
+      spell: 'rictusempra',
     },
     mouth: {
-      spell: 'hit-2-m',
+      spell: 'serpensortia',
     },
     horn: {
-      spell: 'hit-2-h',
+      spell: 'stupefy',
     },
   },
   bird: {
     type: 'heal',
     eyes: {
-      spell: 'heal-1-e',
+      spell: 'lumos maxima',
     },
     mouth: {
-      spell: 'heal-1-m',
+      spell: 'reducto',
     },
     horn: {
-      spell: 'heal-1-h',
+      spell: 'levicorpus',
     },
   },
   plant: {
     type: 'heal',
     eyes: {
-      spell: 'heal-2-e',
+      spell: 'wingardium leviosa',
     },
     mouth: {
-      spell: 'heal-2-m',
+      spell: 'oculus reparo',
     },
     horn: {
-      spell: 'heal-2-h',
+      spell: 'episkey',
     },
   },
   aquatic: {
     type: 'shield',
     eyes: {
-      spell: 'shield-1-e',
+      spell: 'aresto momentum',
     },
     mouth: {
-      spell: 'shield-1-m',
+      spell: 'ascendio',
     },
     horn: {
-      spell: 'shield-1-h',
+      spell: 'salvio hexia',
     },
   },
   reptile: {
     type: 'shield',
     eyes: {
-      spell: 'shield-2-e',
+      spell: 'expecto patronum',
     },
     mouth: {
-      spell: 'shield-2-m',
+      spell: 'periculum',
     },
     horn: {
-      spell: 'shield-2-h',
+      spell: 'protego totalum',
     },
   },
 }
@@ -94,8 +94,8 @@ export const AXIE_ID = [
 
 export const BEST_TEAMS = [
   {
-    name: 'beast-bug-aquatic',
-    classes: ['beast', 'bug', 'aquatic'],
+    name: 'beast-bird-aquatic',
+    classes: ['beast', 'bird', 'aquatic'],
     ultimateSpell: 'avarda kedarva',
   },
   {

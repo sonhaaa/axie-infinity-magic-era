@@ -25,8 +25,9 @@ export class PlaygroundGame extends PIXI.Application {
   axieContiner: PIXI.Container
   axies: IAxie[]
   currentAxiesId: string
-  ally: FigureContainer
-  enemy: FigureContainer
+  main: FigureContainer
+  soulRight: FigureContainer
+  soulLeft: FigureContainer
 
   constructor(options) {
     super(options)
@@ -85,8 +86,9 @@ export class PlaygroundGame extends PIXI.Application {
 
     this.stage?.addChild(figureContainer)
 
-    if (type === 'ally') this.ally = figureContainer
-    if (type === 'enemy') this.enemy = figureContainer
+    if (type === 'main') this.main = figureContainer
+    if (type === 'soul-left') this.soulLeft = figureContainer
+    if (type === 'soul-right') this.soulRight = figureContainer
   }
 
   remove(figureContainer: FigureContainer) {

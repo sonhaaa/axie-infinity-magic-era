@@ -74,6 +74,21 @@ export const AxieFigure = () => {
     })
   }, [])
 
+  const initMainPlayerAxies = async () => {
+    let axies = []
+    for (let i = 0; i < 5; i++) {
+      const axieId = await randomAxieId()
+      axies.push(axieId)
+    }
+    return axies
+  }
+
+  const pickAxieSoul = () => {
+    const axies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
+    localStorage.setItem('mainPlayerAxieSoulLeft', JSON.stringify(axies[0]))
+    localStorage.setItem('mainPlayerAxieSoulRight', JSON.stringify(axies[2]))
+  }
+
   // Init game
   useEffect(() => {
     if (!container) return
@@ -185,6 +200,10 @@ export const AxieFigure = () => {
       axie: axieId,
     })
     localStorage.setItem('mainPlayerAxie', axieId)
+    const axies = await initMainPlayerAxies()
+    axies.push(axieId.toString())
+    localStorage.setItem('mainPlayerAxies', JSON.stringify(axies))
+    pickAxieSoul()
   }
 
   useEffect(() => {

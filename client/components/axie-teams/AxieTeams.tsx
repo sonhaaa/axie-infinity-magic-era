@@ -30,15 +30,21 @@ export const AxieTeams = () => {
 
   const router = useRouter()
 
-  const spells = ['aparecium']
+  const mainPlayerAxies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
+
+  const [mainPlayerAxie, setMainPlayerAxie] = useState(JSON.parse(localStorage.getItem('mainPlayerAxie')))
+  const [mainPlayerAxieRight, setMainPlayerAxieRight] = useState(
+    JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight')),
+  )
+  const [mainPlayerAxieLeft, setMainPlayerAxieLeft] = useState(
+    JSON.parse(localStorage.getItem('mainPlayerAxieSoulLeft')),
+  )
 
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
 
-  const { finalTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition({
-    continuous: false,
-  })
-  const startListening = () => SpeechRecognition.startListening()
+  const [selected, setSelected] = useState('main')
+  const [axiePanelSelected, setAxiePanelSelected] = useState()
 
   // SOUND
   useEffect(() => {
@@ -46,13 +52,6 @@ export const AxieTeams = () => {
       url: 'sounds/background.mp3',
       loop: true,
     })
-    // sound.add('hit', 'sounds/hit.mp3')
-    // sound.add('heal', 'sounds/heal.mp3')
-    // sound.add('shield', 'sounds/shield.mp3')
-    // sound.add('ultimate', 'sounds/ultimate.mp3')
-    // sound.play('background', {
-    //   volume: 0.1,
-    // })
   }, [])
 
   // Init game
@@ -79,6 +78,10 @@ export const AxieTeams = () => {
     gameRef.current.startGame()
     canvasContainer.appendChild(game.view)
 
+    addAxieToScene('main', mainPlayerAxie, 'action/idle/normal', { x: 170, y: 200 }, AxieDirection.Right)
+    addAxieToScene('soul-right', mainPlayerAxieRight, 'action/idle/normal', { x: 250, y: 420 }, AxieDirection.Right)
+    addAxieToScene('soul-left', mainPlayerAxieLeft, 'action/idle/normal', { x: 100, y: 420 }, AxieDirection.Right)
+
     setLoading(false)
 
     return () => {
@@ -88,44 +91,55 @@ export const AxieTeams = () => {
     }
   }, [mainPlayer])
 
-  //#region ADD & REMOVE AXIE
-  const addMainAxieToScene = (axieId: string, animation) => {
-    gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, animation)
-  }
-
-  const addAxieToScene = (axieId: string, animation: string) => {
-    gameRef.current.add('enemy', axieId, { x: 640, y: 200 }, AxieDirection.Left, animation)
-  }
-
-  const removeAxieFromScene = (axieContainer: FigureContainer) => {
-    gameRef.current.remove(axieContainer)
-  }
-
-  //#endregion
-
-  // Check what spell is calling
   useEffect(() => {
-    let maxCosine = 0
-    let highestScoreSpell = ''
-
-    spells.map((spell) => {
-      const score = getCosineSimilarityScore(spell, finalTranscript)
-      if (checkCosineSimilarity(spell, finalTranscript, 50)) {
-        if (maxCosine < score) {
-          maxCosine = score
-          highestScoreSpell = spell
-        }
-      }
-    })
-    console.log('Spell: ', highestScoreSpell)
-    if (highestScoreSpell === spells[0].toLowerCase()) {
-      const axieId = randomAxieId()
-      gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, 'activity/appear')
+    if (gameRef.current.main && gameRef.current.soulLeft && gameRef.current.soulRight) {
+      gameRef.current.main.changeCurrentAnimation('action/idle/normal', true, 1)
+      gameRef.current.soulRight.changeCurrentAnimation('action/idle/normal', true, 1)
+      gameRef.current.soulLeft.changeCurrentAnimation('action/idle/normal', true, 1)
+      if (selected === 'main') gameRef.current.main.changeCurrentAnimation('action/run', true, 1)
+      if (selected === 'soul-right') gameRef.current.soulRight.changeCurrentAnimation('action/run', true, 1)
+      if (selected === 'soul-left') gameRef.current.soulLeft.changeCurrentAnimation('action/run', true, 1)
     }
-  }, [finalTranscript])
+  }, [selected])
 
-  if (!browserSupportsSpeechRecognition) {
-    return <span>Browser does not support speech recognition.</span>
+  useEffect(() => {
+    if (gameRef.current.main && gameRef.current.soulLeft && gameRef.current.soulRight) {
+      if (selected === 'main') {
+        gameRef.current.remove(gameRef.current.main)
+        addAxieToScene('main', axiePanelSelected, 'battle/get-buff', { x: 170, y: 200 }, AxieDirection.Right)
+        setMainPlayerAxie(axiePanelSelected)
+      }
+      if (selected === 'soul-right') {
+        gameRef.current.remove(gameRef.current.soulRight)
+        addAxieToScene('soul-right', axiePanelSelected, 'battle/get-buff', { x: 250, y: 420 }, AxieDirection.Right)
+        setMainPlayerAxieRight(axiePanelSelected)
+      }
+      if (selected === 'soul-left') {
+        gameRef.current.remove(gameRef.current.soulLeft)
+        addAxieToScene('soul-left', axiePanelSelected, 'battle/get-buff', { x: 100, y: 420 }, AxieDirection.Right)
+        setMainPlayerAxieLeft(axiePanelSelected)
+      }
+    }
+  }, [axiePanelSelected])
+
+  const saveTeam = () => {
+    localStorage.setItem('mainPlayerAxieSoulLeft', mainPlayerAxieLeft)
+    localStorage.setItem('mainPlayerAxieSoulRight', mainPlayerAxieRight)
+    localStorage.setItem('mainPlayerAxie', mainPlayerAxie)
+  }
+
+  const addAxieToScene = (
+    type: string,
+    axieId: string,
+    animation: string,
+    position: { x: number; y: number },
+    direction: AxieDirection,
+  ) => {
+    gameRef.current.add(type, axieId, position, direction, animation)
+  }
+
+  const showGuide = () => {
+    console.log('shown')
   }
 
   return (
@@ -143,6 +157,43 @@ export const AxieTeams = () => {
       </div>
       <div ref={container} className={s.canvas}>
         {loading && <PuffLoading size={200} />}
+      </div>
+
+      <span className={s.fighter}>Fighter</span>
+      <span className={s.souls}>Souls</span>
+
+      <img onClick={saveTeam} className={s.saveTeam} src='/ui/save-team.png' alt='Save team' width={167} height={42} />
+
+      {/* AXIE CLICKED OVERLAY */}
+      <>
+        <div className={s.clickedMain} onMouseEnter={showGuide} onClick={() => setSelected('main')}></div>
+        <div className={s.clickedRight} onClick={() => setSelected('soul-right')}></div>
+        <div className={s.clickedLeft} onClick={() => setSelected('soul-left')}></div>
+      </>
+
+      <div className={s.panel}>
+        {mainPlayerAxies?.map((axie, index) => (
+          <div
+            key={`${axie} - ${index}`}
+            className={s.panelCard}
+            style={{
+              borderColor:
+                axie === mainPlayerAxie.toString() ||
+                axie === mainPlayerAxieLeft.toString() ||
+                axie === mainPlayerAxieRight.toString()
+                  ? '#fff'
+                  : '#887d87',
+            }}
+            onClick={() => setAxiePanelSelected(axie)}>
+            <img
+              className={s.pop}
+              src={`https://axiecdn.axieinfinity.com/axies/${axie}/axie/axie-full-transparent.png`}
+              alt='Axie'
+              width={140}
+              height={105}
+            />
+          </div>
+        ))}
       </div>
     </div>
   )

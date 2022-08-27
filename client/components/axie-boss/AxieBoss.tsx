@@ -17,6 +17,7 @@ import { sound } from '@pixi/sound'
 
 import { useRouter } from 'next/router'
 import { randomInRange } from '../../utils/helper'
+import { AXIE_ID } from '../../utils/sampleData'
 
 interface Player {
   address: string
@@ -55,24 +56,6 @@ export const AxieBoss = () => {
     'attack/ranged/cast-low',
     'attack/ranged/cast-multi',
   ]
-  const axies = [
-    '354656',
-    '354621',
-    '10207679',
-    '6095422',
-    '9404096',
-    '9024006',
-    '8844539',
-    '8677874',
-    '10204136',
-    '8435069',
-    '10556926',
-    '10654628',
-    '11413038',
-    '11238070',
-    '11375329',
-    '7074030',
-  ]
 
   // SOUND
   useEffect(() => {
@@ -83,17 +66,23 @@ export const AxieBoss = () => {
   }, [])
 
   useEffect(() => {
+    let bossInterval
+    let damageInterval
     if (gameRef.current) {
-      setInterval(() => {
+      bossInterval = setInterval(() => {
         gameRef.current.boss.state.setAnimation(1, 'attack/melee/normal-attack', false)
         gameRef.current.boss.state.setAnimation(0, 'action/idle/counter-state', true, 2)
       }, 5000)
-      setInterval(() => {
+      damageInterval = setInterval(() => {
         setBossHealth((prev) => prev - randomInRange(100000, 1000000))
         setYourDamage((prev) => prev + randomInRange(1000, 10000))
-      }, 500)
+      }, 200)
     }
-  }, [])
+    return () => {
+      clearInterval(bossInterval)
+      clearInterval(damageInterval)
+    }
+  }, [gameRef.current])
 
   // Init game
   useEffect(() => {
@@ -520,7 +509,7 @@ export const AxieBoss = () => {
     // Add axies
     gameRef.current.addAxie(mainPlayerAxie, { x: 100, y: 450 }, 'attack/melee/tail-multi-slap')
 
-    axies.map((axie) => {
+    AXIE_ID.map((axie) => {
       gameRef.current.addAxie(
         axie,
         { x: randomInRange(100, 300), y: randomInRange(200, 450) },

@@ -218,3 +218,14 @@ export const genSpellFromAxie = async (axiedId: string) => {
     },
   ]
 }
+
+export const getAxieClass = async (axiedId: string) => {
+  const genes = await getAxieGenes(axiedId)
+
+  const mixer = new AxieMixer(genes).getAssets()
+  if (!mixer) throw new Error('invalid mixer')
+
+  const axieClass = await getAxieBodyStructure512(genes).class
+
+  return axieClass
+}

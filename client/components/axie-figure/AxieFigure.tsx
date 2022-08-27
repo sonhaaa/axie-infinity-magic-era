@@ -9,6 +9,7 @@ import 'pixi-spine'
 import {
   checkCosineSimilarity,
   genSpellFromAxie,
+  getAxieClass,
   getCosineSimilarityScore,
   randomAxieId,
   randomInRange,
@@ -24,6 +25,7 @@ import { sound } from '@pixi/sound'
 import { SpellCard } from '../spell-card/SpellCard'
 
 import { useRouter } from 'next/router'
+import { BEST_TEAMS } from '../../utils/sampleData'
 
 interface Player {
   address: string
@@ -50,9 +52,7 @@ export const AxieFigure = () => {
   const [isShieldAvailable, setIsShieldAvailable] = useState(false)
   const [isUltimateAvailable, setIsUltimateAvailable] = useState(false)
 
-  const [allHitSpells, setAllHitSpells] = useState([])
-  const [allHealSpells, setAllHealSpells] = useState([])
-  const [allShieldSpells, setAllShieldSpells] = useState([])
+  const [axieClasses, setAxieClasses] = useState([])
 
   const [spellStartFlag, setSpellStartFlag] = useState(false)
   const [timer, setTimer] = useState()
@@ -63,7 +63,7 @@ export const AxieFigure = () => {
     localStorage.getItem('hitSpell') || '',
     localStorage.getItem('healSpell') || '',
     localStorage.getItem('shieldSpell') || '',
-    'avada kedavra',
+    localStorage.getItem('ultimateSpell') === 'null' ? '' : localStorage.getItem('ultimateSpell'),
   ]
 
   const container = useRef<HTMLDivElement>(null)
@@ -246,6 +246,12 @@ export const AxieFigure = () => {
   }
 
   useEffect(() => {
+    const getClasses = async (main, left, right) => {
+      const mainAxieClass = await getAxieClass(main)
+      const leftAxieClass = await getAxieClass(left)
+      const rightAxieClass = await getAxieClass(right)
+      setAxieClasses([mainAxieClass, leftAxieClass, rightAxieClass])
+    }
     const mainAxie = JSON.parse(localStorage.getItem('mainPlayerAxie'))
     const left = JSON.parse(localStorage.getItem('mainPlayerAxieSoulLeft'))
     const right = JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight'))
@@ -260,7 +266,18 @@ export const AxieFigure = () => {
     if (mainAxie && left && right && !isReselectedSpell) {
       getAxieSpells().then(() => setFirstSpellCombo())
     }
+    if (mainAxie && left && right) {
+      getClasses(mainAxie.toString(), left.toString(), right.toString())
+    }
   }, [])
+
+  // Gen Ultimate Spell
+  useEffect(() => {
+    if (axieClasses)
+      BEST_TEAMS.map((team) => {
+        if (team.name === axieClasses.join('-')) localStorage.setItem('ultimateSpell', team.ultimateSpell)
+      })
+  }, [axieClasses])
 
   const handleMainPlayerAddress = async () => {
     localStorage.setItem('mainPlayerAddress', mainPlayerAddress)
@@ -277,6 +294,7 @@ export const AxieFigure = () => {
     getAxieSpells().then(() => setFirstSpellCombo())
   }
 
+  // ADD MAINPLAYER TO SCENE
   useEffect(() => {
     if (mainPlayer) addMainAxieToScene(mainPlayer.axie, 'activity/appear')
   }, [mainPlayer])

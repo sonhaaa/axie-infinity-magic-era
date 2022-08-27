@@ -5,7 +5,13 @@ import { useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import 'pixi-spine'
-import { checkCosineSimilarity, getCosineSimilarityScore, randomAxieId, randomInRange } from '../../utils/helper'
+import {
+  checkCosineSimilarity,
+  getAxieClass,
+  getCosineSimilarityScore,
+  randomAxieId,
+  randomInRange,
+} from '../../utils/helper'
 import { PuffLoading } from '../puff-loading/PuffLoading'
 import { PlaygroundGame } from './PlaygroundGame'
 import s from './styles.module.css'
@@ -16,6 +22,8 @@ import { FigureContainer } from './FigureContainer'
 import { sound } from '@pixi/sound'
 
 import { useRouter } from 'next/router'
+import { SpellCard } from '../spell-card/SpellCard'
+import { BEST_TEAMS } from '../../utils/sampleData'
 
 interface Player {
   address: string
@@ -45,6 +53,9 @@ export const AxieTeams = () => {
 
   const [selected, setSelected] = useState('main')
   const [axiePanelSelected, setAxiePanelSelected] = useState()
+
+  const [isShowGuide, setIsShowGuide] = useState(false)
+  const [axieClasses, setAxieClasses] = useState([])
 
   // SOUND
   useEffect(() => {
@@ -121,13 +132,19 @@ export const AxieTeams = () => {
         setMainPlayerAxieLeft(axiePanelSelected)
       }
     }
-  }, [axiePanelSelected])
+  }, [axiePanelSelected, selected])
 
   const saveTeam = () => {
     localStorage.setItem('mainPlayerAxieSoulLeft', mainPlayerAxieLeft)
     localStorage.setItem('mainPlayerAxieSoulRight', mainPlayerAxieRight)
     localStorage.setItem('mainPlayerAxie', mainPlayerAxie)
     localStorage.setItem('isSaveTeam', true)
+    localStorage.setItem('ultimateSpell', null)
+    BEST_TEAMS.map((team) => {
+      console.log(axieClasses.join('-'))
+
+      if (team.name === axieClasses.join('-')) localStorage.setItem('ultimateSpell', team.ultimateSpell)
+    })
   }
 
   const addAxieToScene = (
@@ -140,9 +157,17 @@ export const AxieTeams = () => {
     gameRef.current.add(type, axieId, position, direction, animation)
   }
 
-  const showGuide = () => {
-    console.log('shown')
-  }
+  useEffect(() => {
+    const getClasses = async () => {
+      const mainAxieClass = await getAxieClass(mainPlayerAxie)
+      const leftAxieClass = await getAxieClass(mainPlayerAxieLeft)
+      const rightAxieClass = await getAxieClass(mainPlayerAxieRight)
+      setAxieClasses([mainAxieClass.toLowerCase(), leftAxieClass.toLowerCase(), rightAxieClass.toLowerCase()])
+    }
+    if (mainPlayerAxie && mainPlayerAxieLeft && mainPlayerAxieRight) {
+      getClasses()
+    }
+  }, [mainPlayerAxie, mainPlayerAxieLeft, mainPlayerAxieRight, axiePanelSelected])
 
   return (
     <div className={s.container}>
@@ -168,7 +193,11 @@ export const AxieTeams = () => {
 
       {/* AXIE CLICKED OVERLAY */}
       <>
-        <div className={s.clickedMain} onMouseEnter={showGuide} onClick={() => setSelected('main')}></div>
+        <div
+          className={s.clickedMain}
+          onMouseEnter={() => setIsShowGuide(true)}
+          onMouseLeave={() => setIsShowGuide(false)}
+          onClick={() => setSelected('main')}></div>
         <div className={s.clickedRight} onClick={() => setSelected('soul-right')}></div>
         <div className={s.clickedLeft} onClick={() => setSelected('soul-left')}></div>
       </>
@@ -197,6 +226,79 @@ export const AxieTeams = () => {
           </div>
         ))}
       </div>
+
+      {console.log(axieClasses)}
+      {/* GUIDE */}
+      {isShowGuide && axieClasses && (
+        <div className={s.guide}>
+          <span className={s.guideTitle}>Current Team</span>
+          <span className={s.guideDetail} style={{ color: '#B77979' }}>
+            Fighter - <span style={{ color: '#3D3535', marginTop: 14 }}>{axieClasses[0]}</span>{' '}
+          </span>
+          <span className={s.guideDetail}>
+            Soul Left - <span style={{ color: '#3D3535' }}>{axieClasses[1]}</span>
+          </span>
+          <span className={s.guideDetail}>
+            Soul Right - <span style={{ color: '#3D3535' }}>{axieClasses[2]}</span>
+          </span>
+          <span className={s.guideTitle} style={{ marginTop: 24 }}>
+            Insane Team
+          </span>
+
+          <span className={s.guideDetail}>
+            <span style={{ color: axieClasses[0] === 'beast' ? '#b77979' : '#9f9f9f' }}>Beast</span> —{' '}
+            <span style={{ color: axieClasses[1] === 'bird' ? '#3d3535' : '#9f9f9f' }}>Bird</span> —{' '}
+            <span style={{ color: axieClasses[2] === 'aquatic' ? '#3d3535' : '#9f9f9f' }}>Aquatic</span>
+          </span>
+          <SpellCard
+            key={123123}
+            type='ultimate'
+            countdown={1}
+            spellName='avarda kedavra'
+            onFinish={() => {}}
+            scale={0.7}
+          />
+          <span className={s.guideDetail}>
+            <span style={{ color: axieClasses[0] === 'beast' ? '#b77979' : '#9f9f9f' }}>Beast</span> —{' '}
+            <span style={{ color: axieClasses[1] === 'plant' ? '#3d3535' : '#9f9f9f' }}>Plant</span> —{' '}
+            <span style={{ color: axieClasses[2] === 'reptile' ? '#3d3535' : '#9f9f9f' }}>Reptile</span>
+          </span>
+          <SpellCard
+            key={3542}
+            type='ultimate'
+            countdown={1}
+            spellName='avarda kedavra'
+            onFinish={() => {}}
+            scale={0.7}
+          />
+          <span className={s.guideDetail}>
+            <span style={{ color: axieClasses[0] === 'bug' ? '#b77979' : '#9f9f9f' }}>Bug</span> —{' '}
+            <span style={{ color: axieClasses[1] === 'plant' ? '#3d3535' : '#9f9f9f' }}>Plant</span> —{' '}
+            <span style={{ color: axieClasses[2] === 'aquatic' ? '#3d3535' : '#9f9f9f' }}>Aquatic</span>
+          </span>
+          <SpellCard
+            key={23413523}
+            type='ultimate'
+            countdown={1}
+            spellName='avarda kedavra'
+            onFinish={() => {}}
+            scale={0.7}
+          />
+          <span className={s.guideDetail}>
+            <span style={{ color: axieClasses[0] === 'bug' ? '#b77979' : '#9f9f9f' }}>Bug</span> —{' '}
+            <span style={{ color: axieClasses[1] === 'bird' ? '#3d3535' : '#9f9f9f' }}>Bird</span> —{' '}
+            <span style={{ color: axieClasses[2] === 'reptile' ? '#3d3535' : '#9f9f9f' }}>Reptile</span>
+          </span>
+          <SpellCard
+            key={23451}
+            type='ultimate'
+            countdown={1}
+            spellName='avarda kedavra'
+            onFinish={() => {}}
+            scale={0.7}
+          />
+        </div>
+      )}
     </div>
   )
 }

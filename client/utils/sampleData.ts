@@ -94,23 +94,23 @@ export const AXIE_ID = [
 
 export const BEST_TEAMS = [
   {
-    name: '',
+    name: 'beast-bug-aquatic',
     classes: ['beast', 'bug', 'aquatic'],
-    ultimateSpell: 'b-b-a',
+    ultimateSpell: 'avarda kedarva',
   },
   {
-    name: '',
+    name: 'beast-plant-reptile',
     classes: ['beast', 'plant', 'reptile'],
-    ultimateSpell: 'b-p-r',
+    ultimateSpell: 'alohomora',
   },
   {
-    name: '',
+    name: 'bug-plant-aquatic',
     classes: ['bug', 'plant', 'aquatic'],
-    ultimateSpell: 'b-p-a',
+    ultimateSpell: 'bombardo',
   },
   {
-    name: '',
+    name: 'bug-bird-reptile',
     classes: ['bug', 'bird', 'reptile'],
-    ultimateSpell: 'b-b-r',
+    ultimateSpell: 'crucio',
   },
 ]

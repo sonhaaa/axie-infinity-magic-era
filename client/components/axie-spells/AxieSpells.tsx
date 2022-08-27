@@ -35,6 +35,7 @@ export const AxieSpells = () => {
   const [hitSelected, setHitSelected] = useState(localStorage.getItem('hitSpell'))
   const [healSelected, setHealSelected] = useState(localStorage.getItem('healSpell'))
   const [shieldSelected, setShieldSelected] = useState(localStorage.getItem('shieldSpell'))
+  const [ultimateSelected, setUltimateSelected] = useState(localStorage.getItem('ultimateSpell'))
 
   const mainPlayerAxie = JSON.parse(localStorage.getItem('mainPlayerAxie'))
   const mainPlayerAxieSoulRight = JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight'))
@@ -277,8 +278,11 @@ export const AxieSpells = () => {
         </div>
         <div className={s.spellContainer} style={{ left: 605 }}>
           <span className={s.titleSpell}>Ultimate</span>
-          <div className={s.spellWrapper}></div>
-          <div className={s.pickedSpell}></div>
+          <div className={s.spellWrapper}>
+            {ultimateSelected !== 'null' && (
+              <SpellCard type='ultimate' countdown={1} spellName={ultimateSelected} onFinish={() => {}} scale={0.72} />
+            )}
+          </div>
         </div>
       </>
 

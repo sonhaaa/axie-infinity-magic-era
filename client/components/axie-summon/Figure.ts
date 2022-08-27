@@ -46,8 +46,6 @@ export class Figure extends PIXI.spine.Spine {
       const mixer = new AxieMixer(genes).getAssets()
       if (!mixer) throw new Error('invalid mixer')
 
-      console.log(getAxieBodyStructure512(genes))
-
       const newFigure = await this.loadAndSpawn(loader, mixer)
       newFigure.stateData.setMix('draft/run-origin', 'action/idle/normal', 0.1)
       newFigure.stateData.setMix('action/idle/normal', 'draft/run-origin', 0.2)

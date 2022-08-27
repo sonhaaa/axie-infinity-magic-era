@@ -1,5 +1,6 @@
-import { AxieMixer } from '@axieinfinity/mixer'
+import { AxieMixer, getAxieBodyStructure512 } from '@axieinfinity/mixer'
 import { getAxieGenes } from './axie'
+import { SPELL_MAPPING } from './sampleData'
 
 export interface Key {
   code: string
@@ -187,10 +188,33 @@ export const randomAxieId = async () => {
 
   const mixer = new AxieMixer(genes).getAssets()
   if (!mixer) randomAxieId()
-  console.log(randomId)
   return randomId.toString()
 }
 
 export const randomInRange = (min: number, max: number) => {
   return Math.random() * (max - min) + min
+}
+
+export const genSpellFromAxie = async (axiedId: string) => {
+  const genes = await getAxieGenes(axiedId)
+
+  const mixer = new AxieMixer(genes).getAssets()
+  if (!mixer) throw new Error('invalid mixer')
+
+  const parts = await getAxieBodyStructure512(genes).parts
+
+  return [
+    {
+      type: SPELL_MAPPING[parts.Eyes.groups[0].class.toLowerCase()].type,
+      spell: SPELL_MAPPING[parts.Eyes.groups[0].class.toLowerCase()].eyes.spell,
+    },
+    {
+      type: SPELL_MAPPING[parts.Mouth.groups[0].class.toLowerCase()].type,
+      spell: SPELL_MAPPING[parts.Mouth.groups[0].class.toLowerCase()].mouth.spell,
+    },
+    {
+      type: SPELL_MAPPING[parts.Horn.groups[0].class.toLowerCase()].type,
+      spell: SPELL_MAPPING[parts.Horn.groups[0].class.toLowerCase()].horn.spell,
+    },
+  ]
 }

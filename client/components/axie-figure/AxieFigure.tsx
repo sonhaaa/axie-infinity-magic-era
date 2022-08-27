@@ -485,7 +485,7 @@ export const AxieFigure = () => {
               <div className={s.friendsBtn} onClick={() => router.replace('/wedding')}>
                 <img src='/ui/friends-btn.png' alt='' width={58} height={57} />
               </div>
-              <div className={s.settingsBtn} onClick={() => router.replace('/wedding')}>
+              <div className={s.settingsBtn}>
                 <img src='/ui/settings-btn.png' alt='' width={64} height={57} />
               </div>
             </>

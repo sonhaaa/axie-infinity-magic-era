@@ -26,7 +26,6 @@ export class Figure extends PIXI.spine.Spine {
     const spineAtlasLoader = new PIXI.spine.core.AtlasAttachmentLoader(spineAtlas)
 
     const spineJsonParser = new PIXI.spine.core.SkeletonJson(spineAtlasLoader)
-    // console.log(mixer.spine)
     const spineData = spineJsonParser.readSkeletonData(mixer.spine)
     super(spineData)
 

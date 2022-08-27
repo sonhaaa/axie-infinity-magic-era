@@ -84,7 +84,6 @@ export class PlaygroundGame extends PIXI.Application {
     contain(figureContainer, { width: 700, height: 500 })
 
     this.stage?.addChild(figureContainer)
-
     if (type === 'ally') this.ally = figureContainer
     if (type === 'enemy') this.enemy = figureContainer
   }

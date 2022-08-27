@@ -5,17 +5,18 @@ import { useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import 'pixi-spine'
-import { checkCosineSimilarity, getCosineSimilarityScore, randomAxieId, randomInRange } from '../../utils/helper'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import { checkCosineSimilarity, genSpellFromAxie, getCosineSimilarityScore } from '../../utils/helper'
 import { PuffLoading } from '../puff-loading/PuffLoading'
 import { PlaygroundGame } from './PlaygroundGame'
 import s from './styles.module.css'
 import { AxieDirection } from './types'
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
-import { FigureContainer } from './FigureContainer'
 
 import { sound } from '@pixi/sound'
 
 import { useRouter } from 'next/router'
+import { SpellCard } from '../spell-card/SpellCard'
+import { AXIE_ID } from '../../utils/sampleData'
 
 interface Player {
   address: string
@@ -35,6 +36,9 @@ export const AxieSummon = () => {
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
 
+  const [axieSpells, setAxieSpells] = useState([])
+  const [axieSummoned, setAxieSummoned] = useState()
+
   const { finalTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition({
     continuous: false,
   })
@@ -46,13 +50,6 @@ export const AxieSummon = () => {
       url: 'sounds/background.mp3',
       loop: true,
     })
-    // sound.add('hit', 'sounds/hit.mp3')
-    // sound.add('heal', 'sounds/heal.mp3')
-    // sound.add('shield', 'sounds/shield.mp3')
-    // sound.add('ultimate', 'sounds/ultimate.mp3')
-    // sound.play('background', {
-    //   volume: 0.1,
-    // })
   }, [])
 
   // Init game
@@ -88,21 +85,6 @@ export const AxieSummon = () => {
     }
   }, [mainPlayer])
 
-  //#region ADD & REMOVE AXIE
-  const addMainAxieToScene = (axieId: string, animation) => {
-    gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, animation)
-  }
-
-  const addAxieToScene = (axieId: string, animation: string) => {
-    gameRef.current.add('enemy', axieId, { x: 640, y: 200 }, AxieDirection.Left, animation)
-  }
-
-  const removeAxieFromScene = (axieContainer: FigureContainer) => {
-    gameRef.current.remove(axieContainer)
-  }
-
-  //#endregion
-
   // Check what spell is calling
   useEffect(() => {
     let maxCosine = 0
@@ -119,10 +101,20 @@ export const AxieSummon = () => {
     })
     console.log('Spell: ', highestScoreSpell)
     if (highestScoreSpell === spells[0].toLowerCase()) {
-      const axieId = randomAxieId()
-      gameRef.current.add('ally', axieId, { x: 160, y: 420 }, AxieDirection.Right, 'activity/appear')
+      const axieId = AXIE_ID[Math.floor(Math.random() * AXIE_ID.length)]
+      setAxieSummoned(axieId)
+      gameRef.current.add('ally', axieId, { x: 400, y: 280 }, AxieDirection.Right, 'activity/appear')
+      genSpellFromAxie(axieId).then((spell) => {
+        setAxieSpells(spell)
+      })
     }
   }, [finalTranscript])
+
+  const addAxieToTeam = () => {
+    const mainPlayerAxies = JSON.parse(localStorage.getItem('mainPlayerAxies'))
+    mainPlayerAxies.push(axieSummoned)
+    localStorage.setItem('mainPlayerAxies', JSON.stringify(mainPlayerAxies))
+  }
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser does not support speech recognition.</span>
@@ -145,20 +137,47 @@ export const AxieSummon = () => {
         {loading && <PuffLoading size={200} />}
       </div>
 
-      <div className={s.guide}>
-        <span className={s.tutorial}>Spell loud</span>
-        <span className={s.spell}>{spells[0]}</span>
-      </div>
+      {axieSpells?.length === 0 ? (
+        <div className={s.guide}>
+          <span className={s.tutorial}>Spell loud</span>
+          <span className={s.spell}>{spells[0]}</span>
+        </div>
+      ) : (
+        <>
+          <div className={s.spellWrap}>
+            {axieSpells.map((spell) => (
+              <SpellCard
+                key={spell.spell}
+                type={spell.type}
+                countdown={1}
+                spellName={spell.spell}
+                onFinish={() => {}}
+              />
+            ))}
+          </div>
+          <div className={s.light}>
+            <img src='/ui/stage-light.png' alt='Stage light' width={588} height={420} />
+          </div>
+        </>
+      )}
 
-      <div
-        className={s.mic}
-        onTouchStart={startListening}
-        onMouseDown={startListening}
-        onTouchEnd={SpeechRecognition.stopListening}
-        onMouseUp={SpeechRecognition.stopListening}
-        style={{ marginTop: 8, cursor: 'pointer' }}>
-        <Image src='/ui/mic.png' alt='Landscape picture' width={235} height={147} />
-      </div>
+      {axieSpells?.length === 0 ? (
+        <div
+          className={s.mic}
+          onTouchStart={startListening}
+          onMouseDown={startListening}
+          onTouchEnd={SpeechRecognition.stopListening}
+          onMouseUp={SpeechRecognition.stopListening}
+          style={{ marginTop: 8, cursor: 'pointer' }}>
+          <Image src='/ui/mic.png' alt='Mic' width={235} height={147} />
+        </div>
+      ) : (
+        <>
+          <div className={s.mic} style={{ marginTop: 8, cursor: 'pointer' }} onClick={addAxieToTeam}>
+            <Image src='/ui/bring.png' alt='Bring to team' width={245} height={147} />
+          </div>
+        </>
+      )}
     </div>
   )
 }

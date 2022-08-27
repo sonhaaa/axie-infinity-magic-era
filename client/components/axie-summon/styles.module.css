@@ -67,3 +67,28 @@
   font-size: 40px;
   color: #fff;
 }
+
+.mic {
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.mic:active {
+  transform: scale(0.8);
+}
+
+.spellWrap {
+  width: 718px;
+  height: 114px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 513px;
+  display: flex;
+  overflow: auto;
+  justify-content: space-around;
+}
+
+.light {
+  position: absolute;
+  top: 40px;
+}

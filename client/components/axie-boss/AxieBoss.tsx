@@ -91,7 +91,7 @@ export const AxieBoss = () => {
       setInterval(() => {
         setBossHealth((prev) => prev - randomInRange(100000, 1000000))
         setYourDamage((prev) => prev + randomInRange(1000, 10000))
-      }, 1000)
+      }, 500)
     }
   }, [])
 

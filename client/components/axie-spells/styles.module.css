@@ -1,0 +1,122 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
+.canvas {
+  overflow: hidden;
+  border-radius: 4px;
+  width: 800px;
+  height: 500px;
+  border-radius: 15px;
+}
+
+.header {
+  width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-family: 'GUMDROP';
+  font-size: 36px;
+  color: #000;
+}
+
+.backBtn {
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.backBtn:active {
+  transform: scale(0.9);
+}
+
+.saveSpell {
+  right: 0;
+  bottom: 130px;
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.saveSpell:active {
+  transform: scale(0.9);
+}
+
+.titleSpell {
+  font-family: 'GUMDROP';
+  font-size: 20px;
+  color: #b8b8b8;
+  margin-top: 16px;
+}
+
+.spellContainer {
+  position: absolute;
+  width: 185px;
+  height: 476px;
+  left: 10px;
+  top: 250px;
+
+  border: 3px dashed #a383c7;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spellWrapper {
+  margin-top: 20px;
+  width: 100%;
+  height: 80%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spellWrapper > div {
+  margin-bottom: -8px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.spellWrapper > div:hover {
+  transform: scale(0.5);
+}
+
+.spellWrapper > div:active {
+  transform: scale(0.9);
+}
+
+.spellWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.pickedSpell {
+  margin-top: 10px;
+  background: rgba(132, 91, 164, 0.49);
+  width: 100%;
+  height: 19%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.pickedSpell > div {
+  margin-bottom: 4px;
+}

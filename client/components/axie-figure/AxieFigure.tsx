@@ -6,7 +6,13 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import * as Colyseus from 'colyseus.js'
 import Image from 'next/image'
 import 'pixi-spine'
-import { checkCosineSimilarity, getCosineSimilarityScore, randomAxieId, randomInRange } from '../../utils/helper'
+import {
+  checkCosineSimilarity,
+  genSpellFromAxie,
+  getCosineSimilarityScore,
+  randomAxieId,
+  randomInRange,
+} from '../../utils/helper'
 import { PuffLoading } from '../puff-loading/PuffLoading'
 import { PlaygroundGame } from './PlaygroundGame'
 import s from './styles.module.css'
@@ -44,12 +50,21 @@ export const AxieFigure = () => {
   const [isShieldAvailable, setIsShieldAvailable] = useState(false)
   const [isUltimateAvailable, setIsUltimateAvailable] = useState(false)
 
+  const [allHitSpells, setAllHitSpells] = useState([])
+  const [allHealSpells, setAllHealSpells] = useState([])
+  const [allShieldSpells, setAllShieldSpells] = useState([])
+
   const [spellStartFlag, setSpellStartFlag] = useState(false)
   const [timer, setTimer] = useState()
 
   const router = useRouter()
 
-  const spells = ['stupefy', 'episkey', 'expecto patronum', 'avada kedavra']
+  const spells = [
+    localStorage.getItem('hitSpell') || '',
+    localStorage.getItem('healSpell') || '',
+    localStorage.getItem('shieldSpell') || '',
+    'avada kedavra',
+  ]
 
   const container = useRef<HTMLDivElement>(null)
   const gameRef = useRef<PlaygroundGame>(null)
@@ -192,6 +207,61 @@ export const AxieFigure = () => {
     }
   }, [])
 
+  const getAxieSpells = async () => {
+    const mainAxie = JSON.parse(localStorage.getItem('mainPlayerAxie'))
+    const left = JSON.parse(localStorage.getItem('mainPlayerAxieSoulLeft'))
+    const right = JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight'))
+
+    await genSpellFromAxie(mainAxie.toString()).then((spell) => {
+      localStorage.setItem('mainAxieSpell', JSON.stringify(spell))
+    })
+    await genSpellFromAxie(left.toString()).then((spell) => {
+      localStorage.setItem('leftAxieSpell', JSON.stringify(spell))
+    })
+    await genSpellFromAxie(right.toString()).then((spell) => {
+      localStorage.setItem('rightAxieSpell', JSON.stringify(spell))
+    })
+  }
+
+  const setFirstSpellCombo = () => {
+    const main = JSON.parse(localStorage.getItem('mainAxieSpell'))
+    const left = JSON.parse(localStorage.getItem('leftAxieSpell'))
+    const right = JSON.parse(localStorage.getItem('rightAxieSpell'))
+
+    main.map((s) => {
+      if (s.type === 'hit') localStorage.setItem('hitSpell', s.spell)
+      if (s.type === 'heal') localStorage.setItem('healSpell', s.spell)
+      if (s.type === 'shield') localStorage.setItem('shieldSpell', s.spell)
+    })
+    left.map((s) => {
+      if (s.type === 'hit') localStorage.setItem('hitSpell', s.spell)
+      if (s.type === 'heal') localStorage.setItem('healSpell', s.spell)
+      if (s.type === 'shield') localStorage.setItem('shieldSpell', s.spell)
+    })
+    right.map((s) => {
+      if (s.type === 'hit') localStorage.setItem('hitSpell', s.spell)
+      if (s.type === 'heal') localStorage.setItem('healSpell', s.spell)
+      if (s.type === 'shield') localStorage.setItem('shieldSpell', s.spell)
+    })
+  }
+
+  useEffect(() => {
+    const mainAxie = JSON.parse(localStorage.getItem('mainPlayerAxie'))
+    const left = JSON.parse(localStorage.getItem('mainPlayerAxieSoulLeft'))
+    const right = JSON.parse(localStorage.getItem('mainPlayerAxieSoulRight'))
+    const isReselectedSpell = JSON.parse(localStorage.getItem('isSaveSpell'))
+    const isReselectedTeam = JSON.parse(localStorage.getItem('isSaveTeam'))
+    console.log(isReselectedTeam)
+    if (!isReselectedSpell) {
+      localStorage.removeItem('hitSpell')
+      localStorage.removeItem('healSpell')
+      localStorage.removeItem('shieldSpell')
+    }
+    if (mainAxie && left && right && !isReselectedSpell) {
+      getAxieSpells().then(() => setFirstSpellCombo())
+    }
+  }, [])
+
   const handleMainPlayerAddress = async () => {
     localStorage.setItem('mainPlayerAddress', mainPlayerAddress)
     const axieId = await randomAxieId()
@@ -204,6 +274,7 @@ export const AxieFigure = () => {
     axies.push(axieId.toString())
     localStorage.setItem('mainPlayerAxies', JSON.stringify(axies))
     pickAxieSoul()
+    getAxieSpells().then(() => setFirstSpellCombo())
   }
 
   useEffect(() => {
@@ -339,11 +410,13 @@ export const AxieFigure = () => {
     let highestScoreSpell = ''
 
     spells.map((spell) => {
-      const score = getCosineSimilarityScore(spell, finalTranscript)
-      if (checkCosineSimilarity(spell, finalTranscript, 60)) {
-        if (maxCosine < score) {
-          maxCosine = score
-          highestScoreSpell = spell
+      if (spell) {
+        const score = getCosineSimilarityScore(spell, finalTranscript)
+        if (checkCosineSimilarity(spell, finalTranscript, 60)) {
+          if (maxCosine < score) {
+            maxCosine = score
+            highestScoreSpell = spell
+          }
         }
       }
     })
@@ -481,6 +554,9 @@ export const AxieFigure = () => {
               </div>
               <div className={s.summonBtn} onClick={() => router.push('/summon')}>
                 <img src='/ui/summon-btn.png' alt='' width={63} height={57} />
+              </div>
+              <div className={s.spellsBtn} onClick={() => router.replace('/spells')}>
+                <img src='/ui/spells-btn.png' alt='' width={51} height={57} />
               </div>
               <div className={s.friendsBtn} onClick={() => router.replace('/wedding')}>
                 <img src='/ui/friends-btn.png' alt='' width={58} height={57} />
@@ -628,38 +704,46 @@ export const AxieFigure = () => {
         }}>
         {spellStartFlag && (
           <>
-            <SpellCard
-              key='hit'
-              type='hit'
-              countdown={isHitAvailable ? 0 : 5}
-              onFinish={() => setIsHitAvailable(true)}
-              spellName={spells[0]}
-              onClick={hit}
-            />
-            <SpellCard
-              key='heal'
-              type='heal'
-              countdown={isHealAvailable ? 0 : 10}
-              onFinish={() => setIsHealAvailable(true)}
-              spellName={spells[1]}
-              onClick={heal}
-            />
-            <SpellCard
-              key='shield'
-              type='shield'
-              countdown={isShieldAvailable ? 0 : 15}
-              onFinish={() => setIsShieldAvailable(true)}
-              spellName={spells[2]}
-              onClick={shield}
-            />
-            <SpellCard
-              key='ultimate'
-              type='ultimate'
-              countdown={isUltimateAvailable ? 0 : 30}
-              onFinish={() => setIsUltimateAvailable(true)}
-              spellName={spells[3]}
-              onClick={ultimate}
-            />
+            {spells[0] && (
+              <SpellCard
+                key='hit'
+                type='hit'
+                countdown={isHitAvailable ? 0 : 5}
+                onFinish={() => setIsHitAvailable(true)}
+                spellName={spells[0]}
+                onClick={hit}
+              />
+            )}
+            {spells[1] && (
+              <SpellCard
+                key='heal'
+                type='heal'
+                countdown={isHealAvailable ? 0 : 10}
+                onFinish={() => setIsHealAvailable(true)}
+                spellName={spells[1]}
+                onClick={heal}
+              />
+            )}
+            {spells[2] && (
+              <SpellCard
+                key='shield'
+                type='shield'
+                countdown={isShieldAvailable ? 0 : 15}
+                onFinish={() => setIsShieldAvailable(true)}
+                spellName={spells[2]}
+                onClick={shield}
+              />
+            )}
+            {spells[3] && (
+              <SpellCard
+                key='ultimate'
+                type='ultimate'
+                countdown={isUltimateAvailable ? 0 : 30}
+                onFinish={() => setIsUltimateAvailable(true)}
+                spellName={spells[3]}
+                onClick={ultimate}
+              />
+            )}
           </>
         )}
       </div>

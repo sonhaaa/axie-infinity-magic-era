@@ -403,6 +403,14 @@
 .friendsBtn {
   position: absolute;
   bottom: 12px;
+  left: 570px;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.spellsBtn {
+  position: absolute;
+  bottom: 12px;
   left: 484px;
   transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
   cursor: pointer;
@@ -428,6 +436,10 @@
   transform: scale(1.1);
 }
 
+.spellsBtn:hover {
+  transform: scale(1.1);
+}
+
 .settingsBtn:hover {
   transform: scale(1.1);
 }
@@ -445,6 +457,10 @@
 }
 
 .settingsBtn:active {
+  transform: scale(0.9);
+}
+
+.spellsBtn:active {
   transform: scale(0.9);
 }
 

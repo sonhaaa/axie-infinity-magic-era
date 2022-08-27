@@ -56,6 +56,7 @@ export const AxieTeams = () => {
 
   // Init game
   useEffect(() => {
+    localStorage.setItem('isSaveTeam', false)
     if (!container) return
     if (!container.current) return
     const canvasContainer = container.current
@@ -126,6 +127,7 @@ export const AxieTeams = () => {
     localStorage.setItem('mainPlayerAxieSoulLeft', mainPlayerAxieLeft)
     localStorage.setItem('mainPlayerAxieSoulRight', mainPlayerAxieRight)
     localStorage.setItem('mainPlayerAxie', mainPlayerAxie)
+    localStorage.setItem('isSaveTeam', true)
   }
 
   const addAxieToScene = (

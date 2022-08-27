@@ -5,7 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import { BattleRoom } from './rooms/BattleRoom'
 
-const port = Number(process.env.port) || 2567
+const port = Number(process.env.PORT) || 5000
 
 const app = express()
 app.use(cors())
@@ -20,4 +20,4 @@ gameServer.define('battle', BattleRoom).enableRealtimeListing()
 app.use('/colyseus', monitor())
 
 gameServer.listen(port)
-console.log(`Listening on ws://localhost:${port}`)
+console.log(`Listening on :${port}`)

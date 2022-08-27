@@ -45,6 +45,7 @@ export const AxieFigure = () => {
   const [isUltimateAvailable, setIsUltimateAvailable] = useState(false)
 
   const [spellStartFlag, setSpellStartFlag] = useState(false)
+  const [timer, setTimer] = useState()
 
   const router = useRouter()
 
@@ -291,6 +292,10 @@ export const AxieFigure = () => {
         }
       })
 
+      room.onMessage('game-timer', ({ counter }) => {
+        setTimer(counter)
+      })
+
       room.state.players.onRemove = function (player, sessionId) {
         removeAxieFromScene(gameRef.current.enemy)
         gameRef.current.enemy = undefined
@@ -350,6 +355,7 @@ export const AxieFigure = () => {
     setIsHealAvailable(false)
     setIsShieldAvailable(false)
     setIsUltimateAvailable(false)
+    setTimer(undefined)
     setIsGameStart(false)
   }
 
@@ -547,6 +553,9 @@ export const AxieFigure = () => {
           </>
         )}
       </div>
+
+      {/* TIMER */}
+      {timer && <span className={s.timer}>{`${Math.floor(timer / 60)}:${timer - Math.floor(timer / 60) * 60}`}</span>}
 
       <div ref={container} className={s.canvas}>
         {loading && <PuffLoading size={200} />}

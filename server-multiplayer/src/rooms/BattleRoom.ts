@@ -147,21 +147,22 @@ export class BattleRoom extends Room<State> {
 
     this.broadcast('player-joined', this.state.players)
 
-    // let counter = 0
-    // if (this.state.players.size === 2 && !this.isGameStart) {
-    //   console.log('Full players')
+    let counter = 150
+    // let counter = 22
+    if (this.state.players.size === 2 && !this.isGameStart) {
+      console.log('Full players')
 
-    //   this.clock.start()
+      this.clock.start()
 
-    //   this.delayedInterval = this.clock.setInterval(() => {
-    //     counter++
-    //     this.broadcast('action-start-game', { counter })
-    //   }, 1000)
+      this.delayedInterval = this.clock.setInterval(() => {
+        counter--
+        this.broadcast('game-timer', { counter })
+      }, 1_000)
 
-    //   this.clock.setTimeout(() => {
-    //     this.delayedInterval.clear()
-    //   }, 5000)
-    // }
+      this.clock.setTimeout(() => {
+        this.delayedInterval.clear()
+      }, 21_000)
+    }
   }
 
   onLeave(client: Client, consented?: boolean): void | Promise<any> {

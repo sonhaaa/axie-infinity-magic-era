@@ -483,3 +483,12 @@
 .settingsBtn:active {
   transform: scale(0.9);
 }
+
+.timer {
+  font-family: 'GUMDROP';
+  font-size: 24px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-40%);
+  top: 175px;
+}
